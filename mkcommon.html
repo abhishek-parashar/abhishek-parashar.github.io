@@ -532,13 +532,13 @@ pre { box-sizing: border-box; margin: 0 0 1.75em 0; width: 100%; padding: 5px 10
     </div>
 
 <p><img src="https://newevolutiondesigns.com/images/freebies/cool-wallpaper-1.jpg" alt="image" class="bigger-image" /></p>
-<figcaption class="caption"> <a href="https://newevolutiondesigns.com/images/freebies/cool-wallpaper-1.jpg">image source</a></figcaption>
+<figcaption class="caption">image <a href="https://newevolutiondesigns.com/images/freebies/cool-wallpaper-1.jpg">source</a></figcaption>
 
 <p>Ever wondered how a letter combined from English and Hindi would look like? Or how the monalisa painted by Picasso look like? How the friend of yours would look in opposite gender or aged?
 Or how night king would look with different expressions?</p>
 
 <p><img src="https://camo.githubusercontent.com/a9ea97ebdb34f5644fab893987171cdfedf9a6a2/687474703a2f2f7777772e616c6265727470756d61726f6c612e636f6d2f696d616765732f323031382f47414e696d6174696f6e2f7465617365722e706e67" alt="Markdowm Image" /></p>
-<figcaption class="caption"><a href="https://github.com/albertpumarola/GANimation">source github</a></figcaption></figcaption>
+<figcaption class="caption">source<a href="https://github.com/albertpumarola/GANimation">github</a></figcaption></figcaption>
 
 <p>With growing advancement in the field of Deep Learning, all this is not only possible, but relatively easy to do with the inference of a powerful neural network (rather than hours spent on Photoshop). The neural networks that make this possible are termed adversarial networks. Often described as one of the coolest concepts in machine learning, they are actually a set of more than one network (usually two) which are continually competing with each other (hence, adversarially), producing some interesting results along the way.</p>
 <p>In this article we will dive deep in the Style Gan architecture and get our hands dirty with code by creating our own images exactly like <a href="https://www.thispersondoesnotexist.com/">This Person Doesn't Exist.com</a> </P>
@@ -559,17 +559,38 @@ The basic components of every GAN are two neural networks - a generator that syn
 
 
 <p><img src="https://cdn-media-1.freecodecamp.org/images/m41LtQVUf3uk5IOYlHLpPazxI3pWDwG8VEvU" alt="Markdowm Image" /></p>
-<figcaption class="caption"><a href="https://www.freecodecamp.org/news/an-intuitive-introduction-to-generative-adversarial-networks-gans-7a2264a81394/">source freecodecamp</a></figcaption></figcaption>
+<figcaption class="caption">source<a href="https://www.freecodecamp.org/news/an-intuitive-introduction-to-generative-adversarial-networks-gans-7a2264a81394/">freecodecamp</a></figcaption></figcaption>
 
 
 <p>
 The generator input is a random vector (noise) and therefore its initial output is also noise. Over time, as it receives feedback from the discriminator, it learns to synthesize more “realistic” images. The discriminator also improves over time by comparing generated samples with real samples, making it harder for the generator to deceive it.</p>
 
-<p>The loss function of GANs work on a Min-Max game. Where loss from the
+<p>The loss function of GANs work on a Min-Max game. Where loss from the generator is minimized and that from the discriminator is maximised.</p>
+
+<p><img src="http://images1.programmersought.com/115/52/52cea78190b013c7fa4ecd0f82ca2fab.png" alt="Markdowm Image" /></p>
+<figcaption class="caption">source<a href="http://www.programmersought.com/article/6079817980/">programmersought</a></figcaption></figcaption>
+
+
+<p> There was a lot of problem in generating high resolution images from this standard GAN method. To overcome this NVIDIA developed ProGAN or Progressive Growing Generative Adversarial Neural network.</P>
+<p> Let's look into ProGAN architecture.</P>
+
+<h2 id="ProGAN">ProGAN Architecture</h2>
+<p> ProGAN works by gradually increasing the resolution , thus ensuring that the network evolves slowly, initially learning a simple problem before progressing to learning more complex problems(or, in this case, images of a higher resolution). This kind of training principle ensure stability and has been proven to minimize common problems associated with GANs such as mode collapse. It also makes certain that high level features are worked upon first before moving on to the finer details, reducing the likelihood of such features being generated wrong(which would have a more drastic effect on the final image than the other way around). </p>
+
+<p><img src="0_g99OxR_QB0YPaC5C.png" alt="Markdowm Image" /></p>
+<figcaption class="caption">No.of images trained for a given time. Comparing traditional GAN with ProGAN <a href="https://towardsdatascience.com/progan-how-nvidia-generated-images-of-unprecedented-quality-51c98ec2cbd2">towardsdatascience</a></figcaption></figcaption>
+<p>ProGAN works fast and is able to create high resolution images but, a short change in input affects multiple features at the same time. A good analogy for that would be genes, in which changing a single gene might affect multiple traits.</p>
+<P>To overcome this, certain changes were made to make the Style GAN architecture more robust. Let's look at the changes made in the Style GAN architecture.</P>
 
 
 
+<h2 id="Style GAN">Style GAN</h2>
+<p> Style GAN architecture allows user to tune the hyperparameters. Moreover, due to addition of style at each convolution layer it allows for a factor of variability in generated images.</p>
 
+<p><img src="https://www.topbots.com/wp-content/uploads/2019/03/05_StyleGAN_web.jpg" alt="Markdowm Image" /></p>
+<figcaption class="caption">traditional GAN architecture as compared to Style GAN architecture.<a href="https://www.topbots.com/ai-research-generative-adversarial-network-images/">source</a></figcaption></figcaption>
+
+<p>One point to be noted here is that all the changes in the Style gan architecture are done to the Generator part only. The Discriminator is left untoched.</p>
 
     <div class="blog-navigation">
 
