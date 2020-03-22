@@ -538,7 +538,7 @@ pre { box-sizing: border-box; margin: 0 0 1.75em 0; width: 100%; padding: 5px 10
 Or how night king would look with different expressions?</p>
 
 <p><img src="https://camo.githubusercontent.com/a9ea97ebdb34f5644fab893987171cdfedf9a6a2/687474703a2f2f7777772e616c6265727470756d61726f6c612e636f6d2f696d616765732f323031382f47414e696d6174696f6e2f7465617365722e706e67" alt="Markdowm Image" /></p>
-<figcaption class="caption">source<a href="https://github.com/albertpumarola/GANimation">github</a></figcaption></figcaption>
+<figcaption class="caption">source<a href="https://github.com/albertpumarola/GANimation">github</a></figcaption>
 
 <p>With growing advancement in the field of Deep Learning, all this is not only possible, but relatively easy to do with the inference of a powerful neural network (rather than hours spent on Photoshop). The neural networks that make this possible are termed adversarial networks. Often described as one of the coolest concepts in machine learning, they are actually a set of more than one network (usually two) which are continually competing with each other (hence, adversarially), producing some interesting results along the way.</p>
 <p>In this article we will dive deep in the Style Gan architecture and get our hands dirty with code by creating our own images exactly like <a href="https://www.thispersondoesnotexist.com/">This Person Doesn't Exist.com</a> </P>
@@ -559,7 +559,7 @@ The basic components of every GAN are two neural networks - a generator that syn
 
 
 <p><img src="https://cdn-media-1.freecodecamp.org/images/m41LtQVUf3uk5IOYlHLpPazxI3pWDwG8VEvU" alt="Markdowm Image" /></p>
-<figcaption class="caption">source<a href="https://www.freecodecamp.org/news/an-intuitive-introduction-to-generative-adversarial-networks-gans-7a2264a81394/">freecodecamp</a></figcaption></figcaption>
+<figcaption class="caption">source<a href="https://www.freecodecamp.org/news/an-intuitive-introduction-to-generative-adversarial-networks-gans-7a2264a81394/">freecodecamp</a></figcaption>
 
 
 <p>
@@ -568,7 +568,7 @@ The generator input is a random vector (noise) and therefore its initial output 
 <p>The loss function of GANs work on a Min-Max game. Where loss from the generator is minimized and that from the discriminator is maximised.</p>
 
 <p><img src="http://images1.programmersought.com/115/52/52cea78190b013c7fa4ecd0f82ca2fab.png" alt="Markdowm Image" /></p>
-<figcaption class="caption">source<a href="http://www.programmersought.com/article/6079817980/">programmersought</a></figcaption></figcaption>
+<figcaption class="caption">source<a href="http://www.programmersought.com/article/6079817980/">programmersought</a></figcaption>
 
 
 <p> There was a lot of problem in generating high resolution images from this standard GAN method. To overcome this NVIDIA developed ProGAN or Progressive Growing Generative Adversarial Neural network.</P>
@@ -588,9 +588,377 @@ The generator input is a random vector (noise) and therefore its initial output 
 <p> Style GAN architecture allows user to tune the hyperparameters. Moreover, due to addition of style at each convolution layer it allows for a factor of variability in generated images.</p>
 
 <p><img src="https://www.topbots.com/wp-content/uploads/2019/03/05_StyleGAN_web.jpg" alt="Markdowm Image" /></p>
-<figcaption class="caption">traditional GAN architecture as compared to Style GAN architecture.<a href="https://www.topbots.com/ai-research-generative-adversarial-network-images/">source</a></figcaption></figcaption>
+<figcaption class="caption">traditional GAN architecture as compared to Style GAN architecture.<a href="https://www.topbots.com/ai-research-generative-adversarial-network-images/">source</a></figcaption>
 
 <p>One point to be noted here is that all the changes in the Style gan architecture are done to the Generator part only. The Discriminator is left untoched.</p>
+
+<p> Style GAN allows two images to be generated and then combined by taking low-level features from one and high-level features from the other. A mixing regularization technique is used by the generator, causing some percentage of both to appear in the output image.</p>
+
+<p><img src="https://camo.qiitausercontent.com/429e9f68fb5d4ae942809330fef8fcaad94a3f4d/68747470733a2f2f71696974612d696d6167652d73746f72652e73332e616d617a6f6e6177732e636f6d2f302f3235393435312f30363165613861372d613763382d326632622d326462642d3535306262373362393165362e676966" alt="Markdowm Image" /></p>
+<figcaption class="caption">Progressive growing in Style GANs<a href="https://camo.qiitausercontent.com/429e9f68fb5d4ae942809330fef8fcaad94a3f4d/68747470733a2f2f71696974612d696d6167652d73746f72652e73332e616d617a6f6e6177732e636f6d2f302f3235393435312f30363165613861372d613763382d326632622d326462642d3535306262373362393165362e676966">source</a></figcaption>
+<p> At every convolution layer, different styles can be used to generate an image: coarse styles having a resolution between 4x4 to 8x8, middle styles with a resolution of 16x16 to 32x32, or fine styles with a resolution from 64x64 to 1024x1024.</p>
+<p> These coarse styles govern the features and details like face shape, pose, hair style and minute details like eye colour or other microstructures.</p>
+
+<h2 id="Mapping Network">Mapping Network</h2>
+<p> The Style GAN uses a mapping network to input a normalised vector W to the network. The mapping network as developed in the original <a href="https://arxiv.org/abs/1812.04948">NVIDIA Style GAN paper</a> has 8 fully connected layers of 512X1 dimension.</p>
+
+<p><img src="https://www.lyrn.ai/wp-content/uploads/2018/12/StyleGAN-generator-Mapping-network.png" alt="Markdowm Image" /></p>
+<figcaption class="caption">Mapping Netwotrk of Style GAN architecture.<a href="https://www.lyrn.ai/2018/12/26/a-style-based-generator-architecture-for-generative-adversarial-networks/">source</a></figcaption>
+
+<p>The mapping network is used because the trational GAN is unable to control the features and styles to a great extent. NVIDIA’s architecture includes an intermediate “latent space”, which can be thought of as being “detachable”. This gives an edge over traditional GAN architeccture. The traditional GAN architecture is sort of biased according to the data set and causes a problem known as Feature Entanglement.
+A good example would be “entanglement” between the features of hair color and gender. If the dataset used for training has a general trend of males having short hair and females having long hair, the neural network would learn that males can only have short hair and vice-versa for females. As a result, changing the latent vector to obtain long hair for the image of a male in the result would also end up changing the gender, leading to an image of a woman.</p>
+
+
+<center><p class="aligncenter"><img src="https://user-images.githubusercontent.com/4602302/53282791-d6f68380-374d-11e9-8248-d0227b071bf0.gif" alt="Markdowm Image" /></p></center>
+<figcaption class="caption">Feature Entanglement.<a href="https://github.com/Puzer/stylegan-encoder/issues/1">source</a></figcaption>
+
+<p>Mapping network helps to overcome this issue of feature entanglement and generate realistic images.</p>
+
+<h2 id="ADAIN">ADAIN</h2>
+<p>A special layer ADAIN is used for addition of this mapping network output W to the synthesis network.The module is added to each resolution level of the Synthesis Network and defines the visual expression of the features in that level. Before adding to the synthesis network the ADAIN is also reponsible for standardizing the mapping network output to standard Gaussian.</p>
+
+
+<center><p class="aligncenter"><img src="https://3qeqpr26caki16dnhd19sv6by6v-wpengine.netdna-ssl.com/wp-content/uploads/2019/06/Calculation-of-the-adaptive-instance-normalization-AdaIN-in-the-StyleGAN-300x55.png" alt="Markdowm Image" /></p></center>
+<figcaption class="caption">Calculation of the adaptive instance normalization (AdaIN) in the StyleGAN.</figcaption>
+
+
+<h2 id="Removing Tradional Input Noise">Removing Tradional Input-Noise</h2>
+
+<p>The traditional input that is noise is a gaussian noise and wraps around the complete mapping network space. But consider a situation where images of males and females are present in a data set and they are mapped according to the beard or no beard criteria. Females facial images are unlikely to have beards. A gaussian noise in this case would wrap around the complete feature space and thus would increase the input size where it is actually not needed. Moreover, the researchers found that the image features are controlled by W and the AdaIN, and therefore, considering both these cases the initial input can be omitted and replaced by constant values.
+
+
+<p>The StyleGAN architecture also adds noise on a per-pixel basis after each convolution layer. This is done in order to create “stochastic variation” in the image. The researchers observe that adding noise in this way allows a localized style changes to be applied to “stochastic” aspects of the image, such as wrinkles, freckles, skin pores, stubble, etc.</p>
+
+
+<center><p class="aligncenter"><img src="stochastic variation.png" alt="Markdowm Image" /></p></center>
+<figcaption class="caption">Explanation of Stochastic variation.</figcaption>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     <div class="blog-navigation">
 
