@@ -545,15 +545,15 @@ Or how night king would look with different expressions?</p>
 
 
 
-<h2 id="Style Gan introduction">Style Gan Introdution</h2>
+<h2 id="Style Gan introduction">Style Gan Introduction</h2>
 
 <p>StyleGAN was originally an open-source project by NVIDIA to create a generative model that could output high-resolution human faces. The basis of the model was established by a <a href="https://arxiv.org/pdf/1812.04948.pdf">research paper</a> published by Tero Karras, Samuli Laine, and Timo Aila, all researchers at NVIDIA.</p>
 <p></p>
 
-<p> But first let's get a little intution about GAN's </p>
+<p> But first, let's get a little intuition about GAN's </p>
 
 
-<h2 id="GAN Intution">GAN Intution</h2>
+<h2 id="GAN Intuition">GAN Intution</h2>
 <p>
 The basic components of every GAN are two neural networks - a generator that synthesizes new samples from scratch, and a discriminator that takes samples from both the training data and the generator’s output and predicts if they are “real” or “fake”.</p>
 
@@ -590,7 +590,7 @@ The generator input is a random vector (noise) and therefore its initial output 
 <p><img src="https://www.topbots.com/wp-content/uploads/2019/03/05_StyleGAN_web.jpg" alt="Markdowm Image" /></p>
 <figcaption class="caption">traditional GAN architecture as compared to Style GAN architecture.<a href="https://www.topbots.com/ai-research-generative-adversarial-network-images/">source</a></figcaption>
 
-<p>One point to be noted here is that all the changes in the Style gan architecture are done to the Generator part only. The Discriminator is left untoched.</p>
+<p>One point to be noted here is that all the changes in the Style gan architecture are done to the Generator part only. The Discriminator is left untouched.</p>
 
 <p> Style GAN allows two images to be generated and then combined by taking low-level features from one and high-level features from the other. A mixing regularization technique is used by the generator, causing some percentage of both to appear in the output image.</p>
 
@@ -603,9 +603,9 @@ The generator input is a random vector (noise) and therefore its initial output 
 <p> The Style GAN uses a mapping network to input a normalised vector W to the network. The mapping network as developed in the original <a href="https://arxiv.org/abs/1812.04948">NVIDIA Style GAN paper</a> has 8 fully connected layers of 512X1 dimension.</p>
 
 <p><img src="https://www.lyrn.ai/wp-content/uploads/2018/12/StyleGAN-generator-Mapping-network.png" alt="Markdowm Image" /></p>
-<figcaption class="caption">Mapping Netwotrk of Style GAN architecture.<a href="https://www.lyrn.ai/2018/12/26/a-style-based-generator-architecture-for-generative-adversarial-networks/">source</a></figcaption>
+<figcaption class="caption">Mapping Network of Style GAN architecture.<a href="https://www.lyrn.ai/2018/12/26/a-style-based-generator-architecture-for-generative-adversarial-networks/">source</a></figcaption>
 
-<p>The mapping network is used because the trational GAN is unable to control the features and styles to a great extent. NVIDIA’s architecture includes an intermediate “latent space”, which can be thought of as being “detachable”. This gives an edge over traditional GAN architeccture. The traditional GAN architecture is sort of biased according to the data set and causes a problem known as Feature Entanglement.
+<p>The mapping network is used because the traditional GAN is unable to control the features and styles to a great extent. NVIDIA’s architecture includes an intermediate “latent space”, which can be thought of as being “detachable”. This gives an edge over traditional GAN architecture. The traditional GAN architecture is sort of biased according to the data set and causes a problem known as Feature Entanglement.
 A good example would be “entanglement” between the features of hair color and gender. If the dataset used for training has a general trend of males having short hair and females having long hair, the neural network would learn that males can only have short hair and vice-versa for females. As a result, changing the latent vector to obtain long hair for the image of a male in the result would also end up changing the gender, leading to an image of a woman.</p>
 
 
@@ -615,14 +615,14 @@ A good example would be “entanglement” between the features of hair color an
 <p>Mapping network helps to overcome this issue of feature entanglement and generate realistic images.</p>
 
 <h2 id="ADAIN">ADAIN</h2>
-<p>A special layer ADAIN is used for addition of this mapping network output W to the synthesis network.The module is added to each resolution level of the Synthesis Network and defines the visual expression of the features in that level. Before adding to the synthesis network the ADAIN is also reponsible for standardizing the mapping network output to standard Gaussian.</p>
+<p>A special layer ADAIN is used for addition of this mapping network output W to the synthesis network.The module is added to each resolution level of the Synthesis Network and defines the visual expression of the features in that level. Before adding to the synthesis network the ADAIN is also responsible for standardizing the mapping network output to standard Gaussian.</p>
 
 
 <center><p class="aligncenter"><img src="https://3qeqpr26caki16dnhd19sv6by6v-wpengine.netdna-ssl.com/wp-content/uploads/2019/06/Calculation-of-the-adaptive-instance-normalization-AdaIN-in-the-StyleGAN-300x55.png" alt="Markdowm Image" /></p></center>
 <figcaption class="caption">Calculation of the adaptive instance normalization (AdaIN) in the StyleGAN.</figcaption>
 
 
-<h2 id="Removing Tradional Input Noise">Removing Tradional Input-Noise</h2>
+<h2 id="Removing Tradional Input Noise">Removing Traditional Input-Noise</h2>
 
 <p>The traditional input that is noise is a gaussian noise and wraps around the complete mapping network space. But consider a situation where images of males and females are present in a data set and they are mapped according to the beard or no beard criteria. Females facial images are unlikely to have beards. A gaussian noise in this case would wrap around the complete feature space and thus would increase the input size where it is actually not needed. Moreover, the researchers found that the image features are controlled by W and the AdaIN, and therefore, considering both these cases the initial input can be omitted and replaced by constant values.
 
@@ -641,7 +641,7 @@ A good example would be “entanglement” between the features of hair color an
 <p> First we sample a whole bunch of random vectors. We send them through a generator network and generate images, and once we have that dataset we can use resnet to go from the images to their respective latent codes.</p>
 <p> So basically the model looks like this... A query image is taken(can be your own image) we pass it through a resnet and generate latent code from it. The latent code is passed through a generator and facial images are generated. These generated images are passed through a VGG network and semantic feature vector is generated. The semantic feature vector is a set of numbers generated by the VGG network before it's final layer. That is the VGG network is not completed. We extract the semantic feature vector from pre final layer or any layer before that. </p>
 <p> The query image is taken and fed to a VGG network to generate semantic features from it.</P>
-<p> These Feature vectors are taken and L2 distance is found out. This L2 distance is then minimized by running gradient descent. The gradients are send back into the latent code. One point to be noted here is that in all this process of back propogation the generator weights are fixed, only the latent code at the input is updated.</p>
+<p> These Feature vectors are taken and L2 distance is found out. This L2 distance is then minimized by running gradient descent. The gradients are send back into the latent code. One point to be noted here is that in all this process of backpropagation the generator weights are fixed, only the latent code at the input is updated.</p>
 <p> YOU CAN TRY IMPLEMENTING YOUR OWN STYLE GAN AND GENERATE IMAGES. LINK PROVIDED BELOW CONTAINS THE CODE FOR THE SAME.</P>
 
 
