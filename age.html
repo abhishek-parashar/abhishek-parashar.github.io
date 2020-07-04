@@ -9,7 +9,7 @@
     <meta name=author content="Abhishek Parashar">
 
     <!-- Begin Jekyll SEO tag v2.6.1 -->
-<title>Deoldiffy | Abhishek Parashar</title>
+<title>Defacify | Abhishek Parashar</title>
 <meta name="generator" content="Jekyll v3.8.5" />
 <meta property="og:title" content="Facial Ageing Images" />
 <meta name="author" content="Abhishek Parashar" />
@@ -503,7 +503,7 @@ pre { box-sizing: border-box; margin: 0 0 1.75em 0; width: 100%; padding: 5px 10
 
 
 
-<h1 class="title">Deoldiffy</h1>
+<h1 class="title">Defacify</h1>
 
 <span class="date">
     <time datetime="03-07-2020">Friday. July 03, 2020</time>
@@ -525,126 +525,85 @@ pre { box-sizing: border-box; margin: 0 0 1.75em 0; width: 100%; padding: 5px 10
 
     </div>
 
-<p><img src="https://source.unsplash.com/user/erondu/3600x2400" alt="image" class="bigger-image" /></p>
-<figcaption class="caption">image <a href="https://source.unsplash.com/">source</a></figcaption>
+<p><img src="https://source.unsplash.com/user/erondu/3600x2400" alt="image" class="bigger-image" /><figcaption class="caption">image <a href="https://source.unsplash.com/">source</a></figcaption></p>
+<!-- <figcaption class="caption">image <a href="https://source.unsplash.com/">source</a></figcaption> -->
 
 <p>Ever wondered how the FACE APP works? Or how with a simple Snapchat filters you are able to create Opposite Gender Images? Or how the snapchat Baby Filter works??</p>
 <p> If the answer to all these questions is yes and you really want to know the technique behind it then Style GAN is the answer for you.</p>
-<p>Since we have already covered Style GAN, it's architecture and the maths behind it. Let's deep dive further to Generate Facial Ageing Images. </p>
+<p>Since we have already covered Style GAN, it's architecture and the maths behind it. Let's deep dive further to play around with different facial images. </p>
 <p><h2><center><b>ARE YOU READY???</center></b></h2><img src="assets/img/dog age.gif" alt="image" class="bigger-image" /></p>
 
 
 
 
-<h2 id="Style Gan introduction">Style Gan Introduction</h2>
+<h2 id="">Let's Deep Dive</h2>
 
-<p>StyleGAN was originally an open-source project by NVIDIA to create a generative model that could output high-resolution human faces. The basis of the model was established by a <a href="https://arxiv.org/pdf/1812.04948.pdf">research paper</a> published by Tero Karras, Samuli Laine, and Timo Aila, all researchers at NVIDIA.</p>
-<p></p>
+<p>So now, Since we have already obtaned our output vectors from the generated images in the <a class="item" href="mkcommon.html">Style GAN Exordium</a> blog. We can tweak that latent vector space for playing around with different facial images. </p>
 
-<p> But first, let's get a little intuition about GAN's </p>
+<p>The whole process looks like this:-</p>
 
-
-<h2 id="GAN Intuition">GAN Intuition</h2>
-<p>
-The basic components of every GAN are two neural networks - a generator that synthesizes new samples from scratch, and a discriminator that takes samples from both the training data and the generator’s output and predicts if they are “real” or “fake”.</p>
+<p>We again take a set of random samples and generate facial images from it. Now we classify these images using pretrained classifier (VGG net) to obtain a set of attributes or feature vectors (like hair colour, smile, skin colour, gender etc.) and create a dataset from these attributes.</p>
 
 
-<p><img src="https://cdn-media-1.freecodecamp.org/images/m41LtQVUf3uk5IOYlHLpPazxI3pWDwG8VEvU" alt="Markdowm Image" /></p>
-<figcaption class="caption">source<a href="https://www.freecodecamp.org/news/an-intuitive-introduction-to-generative-adversarial-networks-gans-7a2264a81394/">freecodecamp</a></figcaption>
+
+
+<p><img src="assets/img/rs.png" alt="Markdowm Image" /></p>
+
 
 
 <p>
-The generator input is a random vector (noise) and therefore its initial output is also noise. Over time, as it receives feedback from the discriminator, it learns to synthesize more “realistic” images. The discriminator also improves over time by comparing generated samples with real samples, making it harder for the generator to deceive it.</p>
+In the notebook you will find a pretrained classifier for this purpose. The original Style GAN contains a 512 dimensional feature vector (directions) space.</p>
 
-<p>The loss function of GANs work on a Min-Max game. Where loss from the generator is minimized and that from the discriminator is maximised.</p>
-
-<p><img src="http://images1.programmersought.com/115/52/52cea78190b013c7fa4ecd0f82ca2fab.png" alt="Markdowm Image" /></p>
-<figcaption class="caption">source<a href="http://www.programmersought.com/article/6079817980/">programmersought</a></figcaption>
+<p><img src="assets/img/style gan.png" alt="Markdowm Image" /></p>
 
 
-<p> There was a lot of problem in generating high resolution images from this standard GAN method. To overcome this NVIDIA developed ProGAN or Progressive Growing Generative Adversarial Neural network.</P>
-<p> Let's look into ProGAN architecture.</P>
+<p>This a very large and complex feature vector space but what we are really interested in is How does the latent directions changes the resulting faces?  So with all the dataset we have created we can map those feature attributes (classification attributes like hair colour, gender, skin colour, etc.) at this 512 dimensional feature vector space.  </p>
 
-<h2 id="ProGAN">ProGAN Architecture</h2>
-<p> ProGAN works by gradually increasing the resolution , thus ensuring that the network evolves slowly, initially learning a simple problem before progressing to learning more complex problems(or, in this case, images of a higher resolution). This kind of training principle ensure stability and has been proven to minimize common problems associated with GANs such as mode collapse. It also makes certain that high level features are worked upon first before moving on to the finer details, reducing the likelihood of such features being generated wrong(which would have a more drastic effect on the final image than the other way around). </p>
-
-<p><img src="0_g99OxR_QB0YPaC5C.png" alt="Markdowm Image" /></p>
-<figcaption class="caption">No.of images trained for a given time. Comparing traditional GAN with ProGAN <a href="https://towardsdatascience.com/progan-how-nvidia-generated-images-of-unprecedented-quality-51c98ec2cbd2">towardsdatascience</a></figcaption></figcaption>
-<p>ProGAN works fast and is able to create high resolution images but, a short change in input affects multiple features at the same time. A good analogy for that would be genes, in which changing a single gene might affect multiple traits.</p>
-<P>To overcome this, certain changes were made to make the Style GAN architecture more robust. Let's look at the changes made in the Style GAN architecture.</P>
+<p><img src="assets/img/mapping.png" alt="Markdowm Image" /></p>
 
 
 
-<h2 id="Style GAN">Style GAN</h2>
-<p> Style GAN architecture allows user to tune the hyperparameters. Moreover, due to addition of style at each convolution layer it allows for a factor of variability in generated images.</p>
+<p>One important observation here is that all the respective attributes are quite seperable, that is if we draw a linear hyper plane we can surely classify these attributes in groups. </P>
+    <p><img src="assets/img/classified.jpg" alt="Markdowm Image" /></p>
 
-<p><img src="https://www.topbots.com/wp-content/uploads/2019/03/05_StyleGAN_web.jpg" alt="Markdowm Image" /></p>
-<figcaption class="caption">traditional GAN architecture as compared to Style GAN architecture.<a href="https://www.topbots.com/ai-research-generative-adversarial-network-images/">source</a></figcaption>
-
-<p>One point to be noted here is that all the changes in the Style gan architecture are done to the Generator part only. The Discriminator is left untouched.</p>
-
-<p> Style GAN allows two images to be generated and then combined by taking low-level features from one and high-level features from the other. A mixing regularization technique is used by the generator, causing some percentage of both to appear in the output image.</p>
-
-<p><img src="https://camo.qiitausercontent.com/429e9f68fb5d4ae942809330fef8fcaad94a3f4d/68747470733a2f2f71696974612d696d6167652d73746f72652e73332e616d617a6f6e6177732e636f6d2f302f3235393435312f30363165613861372d613763382d326632622d326462642d3535306262373362393165362e676966" alt="Markdowm Image" /></p>
-<figcaption class="caption">Progressive growing in Style GANs<a href="https://camo.qiitausercontent.com/429e9f68fb5d4ae942809330fef8fcaad94a3f4d/68747470733a2f2f71696974612d696d6167652d73746f72652e73332e616d617a6f6e6177732e636f6d2f302f3235393435312f30363165613861372d613763382d326632622d326462642d3535306262373362393165362e676966">source</a></figcaption>
-<p> At every convolution layer, different styles can be used to generate an image: coarse styles having a resolution between 4x4 to 8x8, middle styles with a resolution of 16x16 to 32x32, or fine styles with a resolution from 64x64 to 1024x1024.</p>
-<p> These coarse styles govern the features and details like face shape, pose, hair style and minute details like eye colour or other microstructures.</p>
-
-<h2 id="Mapping Network">Mapping Network</h2>
-<p> The Style GAN uses a mapping network to input a normalised vector W to the network. The mapping network as developed in the original <a href="https://arxiv.org/abs/1812.04948">NVIDIA Style GAN paper</a> has 8 fully connected layers of 512X1 dimension.</p>
-
-<p><img src="https://www.lyrn.ai/wp-content/uploads/2018/12/StyleGAN-generator-Mapping-network.png" alt="Markdowm Image" /></p>
-<figcaption class="caption">Mapping Network of Style GAN architecture.<a href="https://www.lyrn.ai/2018/12/26/a-style-based-generator-architecture-for-generative-adversarial-networks/">source</a></figcaption>
-
-<p>The mapping network is used because the traditional GAN is unable to control the features and styles to a great extent. NVIDIA’s architecture includes an intermediate “latent space”, which can be thought of as being “detachable”. This gives an edge over traditional GAN architecture. The traditional GAN architecture is sort of biased according to the data set and causes a problem known as Feature Entanglement.
-A good example would be “entanglement” between the features of hair color and gender. If the dataset used for training has a general trend of males having short hair and females having long hair, the neural network would learn that males can only have short hair and vice-versa for females. As a result, changing the latent vector to obtain long hair for the image of a male in the result would also end up changing the gender, leading to an image of a woman.</p>
-
-
-<center><p class="aligncenter"><img src="https://user-images.githubusercontent.com/4602302/53282791-d6f68380-374d-11e9-8248-d0227b071bf0.gif" alt="Markdowm Image" /></p></center>
-<figcaption class="caption">Feature Entanglement.<a href="https://github.com/Puzer/stylegan-encoder/issues/1">source</a></figcaption>
-
-<p>Mapping network helps to overcome this issue of feature entanglement and generate realistic images.</p>
-
-<h2 id="ADAIN">ADAIN</h2>
-<p>A special layer ADAIN is used for addition of this mapping network output W to the synthesis network.The module is added to each resolution level of the Synthesis Network and defines the visual expression of the features in that level. Before adding to the synthesis network the ADAIN is also responsible for standardizing the mapping network output to standard Gaussian.</p>
-
-
-<center><p class="aligncenter"><img src="https://3qeqpr26caki16dnhd19sv6by6v-wpengine.netdna-ssl.com/wp-content/uploads/2019/06/Calculation-of-the-adaptive-instance-normalization-AdaIN-in-the-StyleGAN-300x55.png" alt="Markdowm Image" /></p></center>
-<figcaption class="caption">Calculation of the adaptive instance normalization (AdaIN) in the StyleGAN.</figcaption>
-
-
-<h2 id="Removing Tradional Input Noise">Removing Traditional Input-Noise</h2>
-
-<p>The traditional input that is noise is a gaussian noise and wraps around the complete mapping network space. But consider a situation where images of males and females are present in a data set and they are mapped according to the beard or no beard criteria. Females facial images are unlikely to have beards. A gaussian noise in this case would wrap around the complete feature space and thus would increase the input size where it is actually not needed. Moreover, the researchers found that the image features are controlled by W and the AdaIN, and therefore, considering both these cases the initial input can be omitted and replaced by constant values.
-
-<center><p class="aligncenter"><img src="contant input.png" alt="Markdowm Image" /></p></center>
-<figcaption class="caption">Calculation of the adaptive instance normalization (AdaIN) in the StyleGAN.</figcaption>
-
-
-<p>The StyleGAN architecture also adds noise on a per-pixel basis after each convolution layer. This is done in order to create “stochastic variation” in the image. The researchers observe that adding noise in this way allows a localized style changes to be applied to “stochastic” aspects of the image, such as wrinkles, freckles, skin pores, stubble, etc.</p>
-
-
-<center><p class="aligncenter"><img src="stochastic variation.png" alt="Markdowm Image" /></p></center>
-<figcaption class="caption">Explanation of Stochastic variation.</figcaption>
-
-<h2 id="That's how we CODE!!!">That's how we CODE!!!</h2>
-<p>After all this theory it's time to finally enter the FUN part... It's time to understand the code and implement our own Style GAN architecture.</p>
-<p> First we sample a whole bunch of random vectors. We send them through a generator network and generate images, and once we have that dataset we can use resnet to go from the images to their respective latent codes.</p>
-<p> So basically the model looks like this... A query image is taken(can be your own image) we pass it through a resnet and generate latent code from it. The latent code is passed through a generator and facial images are generated. These generated images are passed through a VGG network and semantic feature vector is generated. The semantic feature vector is a set of numbers generated by the VGG network before it's final layer. That is the VGG network is not completed. We extract the semantic feature vector from pre final layer or any layer before that. </p>
-<p> The query image is taken and fed to a VGG network to generate semantic features from it.</P>
-<p> These Feature vectors are taken and L2 distance is found out. This L2 distance is then minimized by running gradient descent. The gradients are send back into the latent code. One point to be noted here is that in all this process of backpropagation the generator weights are fixed, only the latent code at the input is updated.</p>
-<p> YOU CAN TRY IMPLEMENTING YOUR OWN STYLE GAN AND GENERATE IMAGES. LINK PROVIDED BELOW CONTAINS THE CODE FOR THE SAME.</P>
+    <p>After finding out the hyperplane, if we take a normal to this hyper plane, we can note that by going in the direction of this normal we can pretty much generate aged or different gender images of a particular image. </P>
+       
+        <p><img src="assets/img/changing gender.jpg" alt="Markdowm Image" /></p>
 
 
 
 
 
 
+<p>Pretty Easy Right?? Let's try this with code. In this Google Colab notebook you will find a whole bunch of latent space vectors to train on</p>
+<p><ul style="list-style-type:circle">
+    <li>Age-latent-direction.npy</li>
+    <li>Smile-latent-direction.npy</li>
+    <li>Pose-latent-direction.npy</li>
+    <li>Gender-latent-direction.npy</li>
+    <li>Many more...</li>
+  </ul></p>
+
+<p>These are the vector space which I found useful. If you want to train your own latent direction, There is a code for that too... </p>
+<!-- <p>Here is the output video when changing age of Natalie Portman</p>
+
+<video width="320",height="240" control>
+    <source src="assets/img/natalie.mp4" type="video/mp4">.
+  </video>
+ -->
+ <!-- <embed src="assets/img/natalie.mpeg" autostart="false" height="240" width="320" /> -->
+<!-- 
+ <a href="assets/img/natalie.mpeg" title="Download movie">film name</a> -->
+ <!-- <video class="tab" controls>Your browser does not support the &lt;video&gt; tag.
+    <source src="assets/img/natalie.mp4"/>
+  </video> --> 
 
 
 
 
 
+
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/9UawOlNyheI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
 
@@ -970,7 +929,7 @@ A good example would be “entanglement” between the features of hair color an
             <a class="prev"></a>
 
 
-            <a class="deep dive into code" href="https://github.com/abhishek-parashar/style-gan/blob/master/encoder_style_gan.ipynb">Style Gan Encoder Notebook &raquo;</a>
+            <a class="deep dive into code" href="https://github.com/abhishek-parashar/style-gan/blob/master/face_editting.ipynb">face-editting notebook &raquo;</a>
 
     </div>
 
@@ -988,7 +947,7 @@ A good example would be “entanglement” between the features of hair color an
                     <ul>
 
                     <li class="relatedPost">
-                        <a href="404.html">changing facial images coming soon..
+                        <a href="mkcommon.html">Style GAN Exordium
 
                         </a>
                     </li>
@@ -1056,12 +1015,12 @@ A good example would be “entanglement” between the features of hair color an
         <div class="share">
             <!-- Note: Only use three share links if your site width is set to large -->
             <!-- If site width is set to normal, you may choose any two share links -->
-            <a class="twitter" href="https://twitter.com/intent/tweet?text=abhishek-parashar.github.io Style GAN Exordium by @_abhiparashar">
+            <a class="twitter" href="https://twitter.com/intent/tweet?text=abhishek-parashar.github.io Defacify by @_abhiparashar">
                 <svg class="icon"><use xlink:href='#fab.fa-twitter'></use></svg>
                 <span class="icon-twitter">Tweet</span>
             </a>
 
-            <a class="linkedin" href="https://www.linkedin.com/shareArticle?mini=true&amp;url= Style Gan Exordium;source=index.html" target="_blank">
+            <a class="linkedin" href="https://www.linkedin.com/shareArticle?mini=true&amp;url= Defacify;source=index.html" target="_blank">
                 <svg class="icon"><use xlink:href='#fab.fa-linkedin'></use></svg>
                 <span class="icon-linkedin">Share</span>
             </a>
@@ -1080,7 +1039,7 @@ A good example would be “entanglement” between the features of hair color an
 
     var disqus_config = function () {
         this.page.url = 'https://abhishek-parashar.github.io/';
-        this.page.identifier = '/style-gan';
+        this.page.identifier = '/defacify';
     };
     var disqus_shortname = 'https-abhishek-parashar-github-io';
     var disqus_developer = 0;
