@@ -2143,7 +2143,7 @@ pre code {
 #slide4:checked ~ #bullets label:nth-child(4) {
   background: #444;
 }
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 1200px) {
   #slide1:checked ~ #controls label:nth-child(2),
   #slide2:checked ~ #controls label:nth-child(3),
   #slide3:checked ~ #controls label:nth-child(4),
@@ -2155,7 +2155,7 @@ pre code {
      margin: 0;
   }
   #slides {
-     max-width: calc(100% - 140px);
+     max-width: calc(100% - 200px);
      margin: 0 auto;
   }
 }
