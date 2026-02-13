@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Abhishek Parashar">
+
+    <title>Bring Back The Colours — Abhishek Parashar</title>
+    <meta name="description" content="Colourizing old black and white images and videos using Deep Learning and Autoencoders." />
+
+    <style>
+        :root {
+            --bg-color: #141414;
+            --text-color: #e8e8e8;
+            --text-secondary: #909090;
+            --text-tertiary: #6a6a6a;
+            --border-color: #2e2e2e;
+            --border-light: #3a3a3a;
+            --hover-color: #d0d0d0;
+            --cursor-color: #e8e8e8;
+            --link-border: #909090;
+        }
+
+        body.light-theme {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #cccccc;
+            --border-light: #aaaaaa;
+            --hover-color: #333333;
+            --cursor-color: #000000;
+            --link-border: #666666;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--link-border);
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--hover-color);
+            border-bottom: 1px solid var(--text-color);
+        }
+
+        .header {
+            max-width: 1200px;
+            margin: 0 auto 40px;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .terminal-prompt { color: var(--text-secondary); margin-bottom: 20px; font-size: 14px; }
+        .prompt-line::before { content: "$ "; color: var(--text-color); }
+
+        .site-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            border-bottom: none;
+        }
+
+        .site-title:hover { border-bottom: none; color: var(--hover-color); }
+
+        .header-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .nav { display: flex; gap: 25px; list-style: none; flex-wrap: wrap; }
+        .nav::before { content: "> "; color: var(--text-secondary); font-weight: bold; }
+        .nav a { color: var(--text-color); font-size: 14px; text-decoration: none; border-bottom: 1px dotted var(--border-light); }
+        .nav a:hover { color: var(--hover-color); border-bottom: 1px solid var(--link-border); }
+
+        .theme-toggle {
+            position: absolute; top: 20px; right: 0;
+            background: none; border: 1px solid var(--border-color);
+            color: var(--text-color); padding: 8px 16px;
+            font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+            font-size: 12px; cursor: pointer; transition: all 0.3s ease;
+        }
+        .theme-toggle:hover { border-color: var(--text-color); background-color: var(--text-color); color: var(--bg-color); }
+        .theme-toggle::before { content: "["; margin-right: 4px; }
+        .theme-toggle::after  { content: "]"; margin-left: 4px; }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+            display: flex;
+            gap: 48px;
+            align-items: flex-start;
+        }
+
+        .toc { width: 200px; flex-shrink: 0; position: sticky; top: 32px; }
+
+        .toc-label {
+            font-size: 11px; color: var(--text-tertiary);
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+        }
+        .toc-label::before { content: "# "; }
+
+        .toc-list {
+            list-style: none;
+            border-left: 1px solid var(--border-color);
+            padding-left: 14px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+
+        .toc-list a {
+            font-size: 12px; color: var(--text-tertiary);
+            border-bottom: none; line-height: 1.4; transition: color 0.2s ease;
+        }
+        .toc-list a:hover, .toc-list a.active { color: var(--text-color); border-bottom: none; }
+
+        article { flex: 1; min-width: 0; }
+
+        .post-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border-color); }
+        .post-title { font-size: 32px; font-weight: 700; line-height: 1.3; margin-bottom: 16px; }
+
+        .post-meta {
+            font-size: 13px; color: var(--text-tertiary);
+            display: flex; gap: 16px; flex-wrap: wrap; align-items: center;
+        }
+        .post-tag { background: var(--border-color); color: var(--text-secondary); padding: 2px 8px; font-size: 12px; }
+
+        .post-body h2 {
+            font-size: 20px; font-weight: 700;
+            margin: 40px 0 16px; padding-top: 8px;
+            border-top: 1px solid var(--border-color); color: var(--text-color);
+        }
+        .post-body h2::before { content: "## "; color: var(--text-tertiary); }
+
+        .post-body p { margin-bottom: 20px; line-height: 1.85; }
+
+        .post-body img {
+            max-width: 100%; display: block;
+            margin: 24px auto; border: 1px solid var(--border-color);
+        }
+
+        .post-body .caption {
+            text-align: center; font-size: 12px; color: var(--text-tertiary);
+            margin-top: -16px; margin-bottom: 24px;
+        }
+
+        /* Video comparison grid */
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .video-block {}
+
+        .video-block-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .video-block-label::before { content: "> "; }
+
+        .video-link {
+            display: block;
+            position: relative;
+            border: 1px solid var(--border-color);
+            text-decoration: none;
+            border-bottom: none;
+        }
+
+        .video-link:hover { border-color: var(--text-secondary); border-bottom: none; }
+
+        .video-link img { display: block; width: 100%; margin: 0; border: none; }
+
+        .video-play-btn {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 52px; height: 52px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s ease;
+        }
+
+        .video-link:hover .video-play-btn { background: rgba(255,0,0,0.85); }
+
+        .video-play-btn svg { width: 22px; height: 22px; fill: #ffffff; margin-left: 3px; }
+
+        .video-caption {
+            font-size: 11px; color: var(--text-tertiary);
+            text-align: center; margin-top: 6px;
+        }
+        .video-caption a { color: var(--text-secondary); }
+
+        .post-footer {
+            margin-top: 60px; padding-top: 32px;
+            border-top: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; font-size: 14px;
+        }
+        .post-footer a { color: var(--text-secondary); }
+
+        .footer { max-width: 1200px; margin: 80px auto 0; padding: 40px 0 60px; border-top: 1px solid var(--border-color); }
+        .footer-left { display: flex; flex-direction: column; gap: 10px; }
+        .footer-left a { display: flex; align-items: center; gap: 10px; color: var(--text-color); font-size: 14px; border-bottom: none; }
+        .footer-left a::before { content: "- "; color: var(--text-tertiary); }
+        .footer-left svg { width: 16px; height: 16px; fill: var(--text-color); transition: fill 0.3s ease; }
+        .footer-left a:hover svg { fill: var(--hover-color); }
+
+        @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+        .cursor {
+            display: inline-block; width: 8px; height: 16px;
+            background-color: var(--cursor-color); margin-left: 3px;
+            animation: blink 1s infinite; vertical-align: text-bottom;
+        }
+
+        @media (max-width: 900px) {
+            .toc { display: none; }
+            .container { display: block; }
+            .video-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .theme-toggle { position: relative; top: auto; right: auto; margin: 0 auto 20px; }
+            .post-title { font-size: 24px; }
+            .header { padding: 20px; }
+            .footer { padding: 40px 20px; }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+            <span id="theme-text">light</span>
+        </button>
+        <div class="terminal-prompt">
+            <div class="prompt-line">whoami</div>
+        </div>
+        <a href="../index.html" class="site-title">
+            <img src="../assets/profile.jpeg" alt="Abhishek Parashar" class="header-avatar">
+            Abhishek Parashar<span class="cursor"></span>
+        </a>
+        <div class="terminal-prompt">
+            <div class="prompt-line">ls /links</div>
+        </div>
+        <nav>
+            <ul class="nav">
+                <li><a href="../index.html">cd ~</a></li>
+                <li><a href="https://scholar.google.com/citations?user=Nu16wF0AAAAJ&hl=en">cd /research</a></li>
+                <li><a href="../blog.html">cd /blogs</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <aside class="toc">
+            <div class="toc-label">Contents</div>
+            <ul class="toc-list">
+                <li><a href="#autoencoders">Autoencoders</a></li>
+                <li><a href="#colourization">Colourization</a></li>
+                <li><a href="#code">Let's Code</a></li>
+                <li><a href="#results">Results</a></li>
+            </ul>
+        </aside>
+
+        <article>
+            <div class="terminal-prompt">
+                <div class="prompt-line">cat bring-back-the-colours.md</div>
+            </div>
+
+            <div class="post-header">
+                <h1 class="post-title">Bring Back The Colours</h1>
+                <div class="post-meta">
+                    <span>2020-07-04</span>
+                    <span>~10 min read</span>
+                    <span class="post-tag">#GANs</span>
+                    <span class="post-tag">#DeepLearning</span>
+                </div>
+            </div>
+
+            <div class="post-body">
+
+                <p>Ever wondered how life looked for people of the old age? What colour clothes they wore? How old films would look if they were coloured? Or how Delhi looked in 1911?</p>
+
+                <p>Black and white photography bears its own emotional impact — you get rid of populist distractions and kitschy stereotypes of colour. The skies are blue and the roses are red. That's obvious. But what lies within? The lights, the shadows, the contrasts — a rich world. That's what black &amp; white photography expresses directly. But colours speak louder than words. Colours create, enhance, change, establish, and reveal the mood of a person, a painting, and nature itself. We can't imagine life without them.</p>
+
+                <p>Before my mood turns pensive and I completely deviate from the topic — let's deep dive into the theory. We'll be colouring old black and white images and videos. Adding life to it!</p>
+
+                <p>We'll start with a very interesting and foundational concept in Deep Learning: <strong>Autoencoders</strong>.</p>
+
+                <h2 id="autoencoders">Autoencoders</h2>
+
+                <p>Autoencoders are an unsupervised learning technique in which we leverage neural networks for the task of representation learning. We design a neural network architecture with a bottleneck — a compressed knowledge representation of the original input. If the input features were independent of one another, compression and reconstruction would be very difficult. However, if some sort of structure exists in the data (i.e. correlations between input features), this structure can be learned and leveraged when forcing the input through the bottleneck.</p>
+
+                <img src="../assets/img/autoencoders1.png" alt="Autoencoder architecture" />
+
+                <p>As visualized above, we take an unlabeled dataset and frame it as a supervised learning problem — tasked with outputting x̂, a reconstruction of the original input x. The network is trained by minimizing the reconstruction error L(x, x̂), which measures the differences between the original input and its reconstruction. The bottleneck is key — without it, the network could simply memorize the input values by passing them through unchanged.</p>
+
+                <p>We'll discuss Autoencoders and their variants in more depth in upcoming posts. For now, this intuition is enough to understand colourization.</p>
+
+                <h2 id="colourization">Colourization</h2>
+
+                <p>Given our intuition about Autoencoders — what if we feed a pool of coloured images as input, force the encoder to produce a black and white representation as its compressed output, and then train the decoder to reconstruct the original coloured image from that encoding?</p>
+
+                <p>In this way, the model learns to extract the important structural features as the encoding, then reconstructs colour from them. This trained model can then be used to colourise any black and white image or video — which is exactly our target.</p>
+
+                <h2 id="code">Let's Code</h2>
+
+                <p>Since this requires high hardware requirements, we'll use <strong>Google Colab</strong> for compute and a pretrained model by fast.ai for quick and precise results. Try to use shorter videos with clear pixels and set the render factor to 21.</p>
+
+                <h2 id="results">Results</h2>
+
+                <div class="video-grid">
+                    <div class="video-block">
+                        <div class="video-block-label">Original — Black &amp; White</div>
+                        <a class="video-link" href="https://www.youtube.com/watch?v=5iFqIl5XEtA" target="_blank" rel="noopener">
+                            <img src="https://img.youtube.com/vi/5iFqIl5XEtA/mqdefault.jpg" alt="Original black and white footage" />
+                            <div class="video-play-btn">
+                                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </a>
+                        <p class="video-caption"><a href="https://www.youtube.com/watch?v=5iFqIl5XEtA" target="_blank" rel="noopener">Watch on YouTube →</a></p>
+                    </div>
+
+                    <div class="video-block">
+                        <div class="video-block-label">Colourized Version</div>
+                        <a class="video-link" href="https://www.youtube.com/watch?v=gsOM_hh4Qnk" target="_blank" rel="noopener">
+                            <img src="https://img.youtube.com/vi/gsOM_hh4Qnk/mqdefault.jpg" alt="Colourized footage" />
+                            <div class="video-play-btn">
+                                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </a>
+                        <p class="video-caption"><a href="https://www.youtube.com/watch?v=gsOM_hh4Qnk" target="_blank" rel="noopener">Watch on YouTube →</a></p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="post-footer">
+                <a href="../blog.html">← cd /blogs</a>
+                <a href="https://github.com/abhishek-parashar/bring-back-the-colours" target="_blank" rel="noopener">GitHub Repository →</a>
+            </div>
+        </article>
+    </main>
+
+    <footer class="footer">
+        <div class="terminal-prompt">
+            <div class="prompt-line">ls /contact</div>
+        </div>
+        <div class="footer-left">
+            <a href="mailto:abhiparasharcode@gmail.com">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
+                    <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
+                </svg>
+                hi[thiswebsite]
+            </a>
+            <a href="https://twitter.com/_abhiparashar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                </svg>
+                _abhiparashar
+            </a>
+            <a href="https://www.linkedin.com/in/abhishek-parashar-3a9218150/">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z" />
+                </svg>
+                abhishek-parashar
+            </a>
+            <a href="https://github.com/abhishek-parashar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+                abhishek-parashar
+            </a>
+            <a href="https://www.strava.com/athletes/143971850">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
+                </svg>
+                strava
+            </a>
+            <a href="https://www.threads.net/@abhishek.parashar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.186 3.094c-2.37 0-4.716.548-6.697 1.567a.75.75 0 1 0 .712 1.32c1.796-.924 3.923-1.387 6.015-1.387 5.417 0 9.284 3.771 9.284 9.063 0 2.444-.652 4.63-1.884 6.322-1.247 1.712-3.064 2.771-5.26 3.063a.75.75 0 1 0 .208 1.486c2.516-.335 4.651-1.568 6.14-3.566 1.476-1.98 2.296-4.515 2.296-7.305 0-6.107-4.442-10.563-10.784-10.563zm-.433 5.719c-2.485 0-4.5 2.015-4.5 4.5s2.015 4.5 4.5 4.5 4.5-2.015 4.5-4.5-2.015-4.5-4.5-4.5zm0 1.5c1.657 0 3 1.343 3 3s-1.343 3-3 3-3-1.343-3-3 1.343-3 3-3z"/>
+                </svg>
+                threads
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        const themeText = document.getElementById('theme-text');
+
+        if (currentTheme === 'light') {
+            document.body.classList.add('light-theme');
+            themeText.textContent = 'dark';
+        } else {
+            themeText.textContent = 'light';
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const isLight = body.classList.contains('light-theme');
+            if (isLight) {
+                body.classList.remove('light-theme');
+                localStorage.setItem('theme', 'dark');
+                themeText.textContent = 'light';
+            } else {
+                body.classList.add('light-theme');
+                localStorage.setItem('theme', 'light');
+                themeText.textContent = 'dark';
+            }
+        }
+
+        const headings = document.querySelectorAll('.post-body h2[id]');
+        const tocLinks = document.querySelectorAll('.toc-list a');
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    tocLinks.forEach(a => a.classList.remove('active'));
+                    const active = document.querySelector(`.toc-list a[href="#${entry.target.id}"]`);
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { rootMargin: '0px 0px -70% 0px' });
+
+        headings.forEach(h => observer.observe(h));
+    </script>
+</body>
+</html>

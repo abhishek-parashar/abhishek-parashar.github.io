@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Abhishek Parashar">
+
+    <title>The Story of Kashmir: Part 1 — Abhishek Parashar</title>
+    <meta name="description" content="The Story of Kashmir — from its ancient origins to the UN Resolution 47." />
+
+    <style>
+        :root {
+            --bg-color: #141414;
+            --text-color: #e8e8e8;
+            --text-secondary: #909090;
+            --text-tertiary: #6a6a6a;
+            --border-color: #2e2e2e;
+            --border-light: #3a3a3a;
+            --hover-color: #d0d0d0;
+            --cursor-color: #e8e8e8;
+            --link-border: #909090;
+        }
+
+        body.light-theme {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #cccccc;
+            --border-light: #aaaaaa;
+            --hover-color: #333333;
+            --cursor-color: #000000;
+            --link-border: #666666;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--link-border);
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--hover-color);
+            border-bottom: 1px solid var(--text-color);
+        }
+
+        /* Header */
+        .header {
+            max-width: 1200px;
+            margin: 0 auto 40px;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .terminal-prompt {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .prompt-line::before { content: "$ "; color: var(--text-color); }
+
+        .site-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            border-bottom: none;
+        }
+
+        .site-title:hover { border-bottom: none; color: var(--hover-color); }
+
+        .header-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .nav { display: flex; gap: 25px; list-style: none; flex-wrap: wrap; }
+        .nav::before { content: "> "; color: var(--text-secondary); font-weight: bold; }
+        .nav a { color: var(--text-color); font-size: 14px; text-decoration: none; border-bottom: 1px dotted var(--border-light); }
+        .nav a:hover { color: var(--hover-color); border-bottom: 1px solid var(--link-border); }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 0;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 16px;
+            font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover { border-color: var(--text-color); background-color: var(--text-color); color: var(--bg-color); }
+        .theme-toggle::before { content: "["; margin-right: 4px; }
+        .theme-toggle::after  { content: "]"; margin-left: 4px; }
+
+        /* Layout */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+            display: flex;
+            gap: 48px;
+            align-items: flex-start;
+        }
+
+        /* TOC */
+        .toc { width: 200px; flex-shrink: 0; position: sticky; top: 32px; }
+
+        .toc-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .toc-label::before { content: "# "; }
+
+        .toc-list {
+            list-style: none;
+            border-left: 1px solid var(--border-color);
+            padding-left: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toc-list a {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            border-bottom: none;
+            line-height: 1.4;
+            transition: color 0.2s ease;
+        }
+
+        .toc-list a:hover,
+        .toc-list a.active { color: var(--text-color); border-bottom: none; }
+
+        article { flex: 1; min-width: 0; }
+
+        /* Post header */
+        .post-header {
+            margin-bottom: 48px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .post-title { font-size: 32px; font-weight: 700; line-height: 1.3; margin-bottom: 16px; }
+
+        .post-meta {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .post-tag { background: var(--border-color); color: var(--text-secondary); padding: 2px 8px; font-size: 12px; }
+
+        /* Disclaimer */
+        .disclaimer {
+            border-left: 2px solid var(--border-color);
+            padding: 12px 16px;
+            margin-bottom: 32px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .disclaimer ul { margin: 8px 0 0 16px; }
+        .disclaimer li { margin-bottom: 6px; line-height: 1.6; }
+
+        /* Post body */
+        .post-body h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 48px 0 16px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .post-body h2::before { content: "## "; color: var(--text-tertiary); }
+
+        .post-body h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 32px 0 12px;
+            color: var(--text-secondary);
+        }
+
+        .post-body h3::before { content: "### "; color: var(--text-tertiary); }
+
+        .post-body p { margin-bottom: 20px; line-height: 1.85; }
+
+        .post-body ul, .post-body ol {
+            margin: 0 0 20px 20px;
+            line-height: 2;
+            color: var(--text-secondary);
+        }
+
+        .post-body ol li { margin-bottom: 8px; }
+
+        .post-body img {
+            max-width: 100%;
+            display: block;
+            margin: 24px auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .post-body .caption {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: -16px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .post-body .caption a { color: var(--text-secondary); }
+
+        /* Sources section */
+        .sources {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h2 { font-size: 14px; color: var(--text-tertiary); margin-bottom: 12px; border-top: none; padding-top: 0; }
+        .sources h2::before { content: "# "; }
+        .sources ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+        .sources li::before { content: "- "; color: var(--text-tertiary); }
+        .sources a { font-size: 13px; color: var(--text-secondary); }
+
+        /* Post footer */
+        .post-footer {
+            margin-top: 60px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .post-footer a { color: var(--text-secondary); }
+
+        /* Site footer */
+        .footer { max-width: 1200px; margin: 80px auto 0; padding: 40px 0 60px; border-top: 1px solid var(--border-color); }
+        .footer-left { display: flex; flex-direction: column; gap: 10px; }
+        .footer-left a { display: flex; align-items: center; gap: 10px; color: var(--text-color); font-size: 14px; border-bottom: none; }
+        .footer-left a::before { content: "- "; color: var(--text-tertiary); }
+        .footer-left svg { width: 16px; height: 16px; fill: var(--text-color); transition: fill 0.3s ease; }
+        .footer-left a:hover svg { fill: var(--hover-color); }
+
+        @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: var(--cursor-color);
+            margin-left: 3px;
+            animation: blink 1s infinite;
+            vertical-align: text-bottom;
+        }
+
+        @media (max-width: 900px) {
+            .toc { display: none; }
+            .container { display: block; }
+        }
+
+        @media (max-width: 768px) {
+            .theme-toggle { position: relative; top: auto; right: auto; margin: 0 auto 20px; }
+            .post-title { font-size: 24px; }
+            .header { padding: 20px; }
+            .footer { padding: 40px 20px; }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+            <span id="theme-text">light</span>
+        </button>
+        <div class="terminal-prompt">
+            <div class="prompt-line">whoami</div>
+        </div>
+        <a href="../index.html" class="site-title">
+            <img src="../assets/profile.jpeg" alt="Abhishek Parashar" class="header-avatar">
+            Abhishek Parashar<span class="cursor"></span>
+        </a>
+        <div class="terminal-prompt">
+            <div class="prompt-line">ls /links</div>
+        </div>
+        <nav>
+            <ul class="nav">
+                <li><a href="../index.html">cd ~</a></li>
+                <li><a href="https://scholar.google.com/citations?user=Nu16wF0AAAAJ&hl=en">cd /research</a></li>
+                <li><a href="../blog.html">cd /blogs</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <aside class="toc">
+            <div class="toc-label">Contents</div>
+            <ul class="toc-list">
+                <li><a href="#discovery">Discovery &amp; History</a></li>
+                <li><a href="#independence">At Independence</a></li>
+                <li><a href="#junagadh">Junagadh &amp; Plebiscite</a></li>
+                <li><a href="#chain">Chain of Events</a></li>
+                <li><a href="#hyderabad">Hyderabad</a></li>
+                <li><a href="#un-resolution">UN Resolution 47</a></li>
+                <li><a href="#thoughts">Thoughts &amp; Way Ahead</a></li>
+                <li><a href="#sources">Sources</a></li>
+            </ul>
+        </aside>
+
+        <article>
+            <div class="terminal-prompt">
+                <div class="prompt-line">cat kashmir-part-1.md</div>
+            </div>
+
+            <div class="post-header">
+                <h1 class="post-title">The Story of Kashmir: Part 1</h1>
+                <div class="post-meta">
+                    <span>2022-03-23</span>
+                    <span>~20 min read</span>
+                    <span class="post-tag">#History</span>
+                    <span class="post-tag">#Polity</span>
+                </div>
+            </div>
+
+            <div class="post-body">
+
+                <p>On the night of 26th October 1947, king Hari Singh handed his pistol to his A.D.C (personal secretary) and ordered him: "If the Indian Army doesn't reach Srinagar by tomorrow morning, make me sleep for the rest of my life."</p>
+
+                <p>Feels like scenes from a dramatized movie, right? Such has been the case with Kashmir for many years now. This blog is about Kashmir — which for centuries has been the center for art, culture, mathematics, science, language, spirituality, and of course politics. I will try to present each and every event with respect to Kashmir from its discovery to the abrogation of Article 370, along with proper facts, official documents from the UN, the Indian Constitution, and various letters and reports written at the time of these events. Since the story spans decades, this series is divided into multiple parts.</p>
+
+                <div class="disclaimer">
+                    <strong>Disclaimer</strong>
+                    <ul>
+                        <li>I have tried to gather all the facts and sources myself. Though correct to my knowledge and research, I am open to other findings or mistakes I might have incurred unintentionally.</li>
+                        <li>These are my personal opinions and interpretations from various official sources. I don't want to blame any political party, personality, or religion. The Kashmir issue is about humanity, not religion.</li>
+                    </ul>
+                </div>
+
+                <img src="../assets/img/kashmir/kashmir.png" alt="Kashmir" />
+
+                <h2 id="discovery">The Discovery and History</h2>
+
+                <p>The word Kashmir was derived from the Sanskrit word <em>Kasmira</em>. The Nilamata Puran describes the valley's origin from a lake called Sati-Saras or Parvati Lake. The legend has it that the lake was occupied by a demon named Jalodbhava. Lord Vishnu took the incarnation of a boar (Varaha) and struck the mountain at Varahmulla — present-day Baramulla — to let the water flow out. Geologists agree that the valley was formerly a lake, drained through the gap at Baramulla. Another legend mentions Kashmir as a place where Rishi Kashyap lived, the lake being called Kashyapa-mir. Greeks mentioned Kashmir as Kasperia; Chinese traveler Hieun Tsang visited Kashmir and called it Kia-shi-milo. The sixth Sikh Guru, Guru Hargobind, also visited Kashmir.</p>
+
+                <img src="../assets/img/kashmir/kashyap.jpg" alt="Kashyap Rishi" />
+                <p class="caption">Rishi Kashyap — from whom Kashmir derives its name</p>
+
+                <p>Many dynasties ruled Kashmir, with important rulers like Lalitaditya of the Karkota Dynasty and Queen Kota Rani, who constructed canals to save Srinagar from floods. Old Srinagar city was discovered by the Mauryan Empire. Kashmir has many Hindu and Buddhist shrines including the Martand Sun Temple, Sharda-Peeth, Shankaracharya-Peeth, and the Stupa at Baramulla. Later, the Shah-Mir Dynasty was the first Muslim ruler in the state, followed by Mughals, Afghans, the Durrani Empire, and Sikhs under Raja Ranjit Singh. After the Anglo-Sikh war, rule passed to the British East India Company. Kashmir was considered a princely state. The last Monarch was Raja Hari Singh of the Dogra clan.</p>
+
+                <img src="../assets/img/kashmir/martand.jpg" alt="Martand Sun Temple" />
+                <p class="caption">Martand Sun Temple</p>
+
+                <img src="../assets/img/kashmir/stupabaramulla.jpg" alt="Baramulla Stupa" />
+                <p class="caption">Stupa at Baramulla</p>
+
+                <h2 id="independence">At the Time of Independence</h2>
+
+                <p>Louis Mountbatten, the last Viceroy and first Governor-General of India, sensed that Kashmir shared a border with both India and Pakistan and that both countries would want to control the state. He urged Raja Hari Singh to form an opinion and suggested merging with India. The talks didn't reach any endpoint. When Mountbatten returned the next day, the king made an excuse — his servant informed Mountbatten that he was suffering from a stomach ache. This was Hari Singh's common excuse when he didn't want to meet anyone. Little did he know that this "stomach ache" would become a headache for millions of people for decades to come.</p>
+
+                <img src="../assets/img/kashmir/harisingh.jpg" alt="Raja Hari Singh" />
+                <p class="caption">Raja Hari Singh</p>
+
+                <p>At the time of Independence there were around 543 princely states in India. Getting all of them together was a very difficult task — made possible by two personalities: Sardar Vallabhai Patel and V.P. Menon (I.A.S officer). India was unlucky that Mahatma Gandhi died in 1948 and Sardar Patel in 1950.</p>
+
+                <img src="../assets/img/kashmir/sardarvp.jpg" alt="Sardar Patel and V.P. Menon" />
+                <p class="caption">Sardar Patel and V.P. Menon</p>
+
+                <p>One major figure was Sheikh Abdullah, who graduated from Aligarh Muslim University and went to Kashmir to find work. He was not allowed to take any important job — all positions were taken by Hindus at the time. Sheikh Abdullah was against monarchy and wanted democracy. Notably, he was also against the Muslim League and was not in favor of merging Kashmir with Pakistan at this point. He was a good friend of Jawaharlal Nehru, perhaps because they shared the same ideology. He was imprisoned by Raja Hari Singh for inciting the crowd against the King.</p>
+
+                <img src="../assets/img/kashmir/sheikh.jpg" alt="Sheikh Abdullah" />
+                <p class="caption">Sheikh Abdullah</p>
+
+                <h2 id="junagadh">Junagadh and the Plebiscite</h2>
+
+                <p>Junagadh was a princely state ruled by Nawab Mahabat Khan — a ruler so fond of dogs that he organized marriages for them and declared a public holiday for the occasion. Ruling a majority Hindu population, he nonetheless signed the letter of accession to Pakistan on 15 September 1947. His state didn't even share a boundary with Pakistan. Citizens revolted. The king fled to Pakistan, accidentally leaving behind one of his queens and a child. His Dewan Shah Nawaz Bhutto (father of Zulfikar Ali Bhutto) asked India to take over. Sardar Patel and Nehru insisted on a plebiscite where citizens would decide. Citizens voted heavily in favor of India.</p>
+
+                <img src="../assets/img/kashmir/junagadhind.jpg" alt="Junagadh 1947" />
+                <p class="caption">Newspapers celebrating the accession of Junagadh to India</p>
+
+                <p>This issue brought plebiscite into the picture — and a similar demand would later emerge for Kashmir. Meanwhile, the Hyderabad Nawab entered a standstill agreement with the Indian government for one year (November 1947 to November 1948) to decide his state's future.</p>
+
+                <h2 id="chain">Chain of Events in Kashmir</h2>
+
+                <p>These are the most important and suspenseful series of actions that took place. For deeper reading, refer to:</p>
+
+                <ul>
+                    <li>Kashmir Behind the Vale — M.J. Akbar</li>
+                    <li>Kashmir, 1947: Rival Versions of History — Prem Shankar Jha</li>
+                    <li>The Kashmir Dispute, 1947–2012 — A.G. Noorani</li>
+                    <li>India After Gandhi — Ram Chandar Guha</li>
+                </ul>
+
+                <h3>20/10/1947 — Pakistan Tribesmen Army</h3>
+
+                <p>Jinnah ordered Akbar Khan, general of Pakistan, to start a military operation in Kashmir. The goal: remove Hari Singh, remove all non-Sunni Muslims, and merge Kashmir with Pakistan. Akbar Khan created a force of tribesmen from present-day Waziristan and Pakistan army personnel in civilian clothes. (This is not folklore — Pakistan acknowledged it at the UN.) Hari Singh's Brigadier Rajinder Singh took command and fought back. The tribesmen's army reached Muzaffarabad — now the capital of Pakistan-Occupied Kashmir. On seeing the situation worsen, Hari Singh asked V.P. Menon for help. Nehru, Patel, and Mountbatten deliberated. Mountbatten refused to send the Indian Army as Kashmir was not part of India — doing so would mean starting an international war, against the policy of the newly formed UN.</p>
+
+                <img src="../assets/img/kashmir/tribesmen.jpg" alt="Pakistan army tribesmen 1947" />
+                <p class="caption">Pakistan's tribesmen army, 1947</p>
+
+                <p>Rajinder Singh destroyed the bridge at Uri, denying the tribesmen access to Srinagar and buying two critical days. Rajinder Singh died fighting that day. He and his men, along with local Sikhs, greatly outnumbered, held their ground.</p>
+
+                <img src="../assets/img/kashmir/rajinder-singh.jpg" alt="Brigadier Rajinder Singh" />
+                <p class="caption">Brigadier Rajinder Singh — awarded the Mahavir Chakra for his bravery</p>
+
+                <h3>25/10/1947 — The Baramulla Massacre</h3>
+
+                <p>The tribesmen's army reached Baramulla. As stated by Sheikh Abdullah at the UN on 5 February 1948: "The raiders came to our land, massacred thousands of people — mostly Sikhs, but Hindus and Muslims too — abducted thousands of girls, Hindus, Sikhs and Muslims alike, looted our property and almost reached the gates of our summer capital, Srinagar." According to reports, only one-third of Baramulla's population survived. Colonel Dykes and his wife at St. Joseph's Church and hospital were shot dead. A Muslim patient who had just given birth was shot, along with 9 nuns.</p>
+
+                <img src="../assets/img/kashmir/baramulla.jpg" alt="Baramulla massacre" />
+                <p class="caption">People killed at St. Joseph's Church School, Baramulla</p>
+
+                <p>Raja Hari Singh fled to Jammu with all his belongings. V.P. Menon and Mehr Chand Mahajan stayed to assess the situation, eventually escaping to Jammu in a broken jeep — the only vehicle available. Kashmir was still not part of India, so the Indian army could not come to the rescue.</p>
+
+                <h3>26/10/1947 — Kashmir Accedes to India</h3>
+
+                <p>V.P. Menon and Mehr Chand Mahajan insisted to Raja Hari Singh that the only way to save Kashmir was to sign the Instrument of Accession. The Raja agreed. V.P. Menon rushed to Delhi, obtained the letter, returned to Jammu for the King's signature, then rushed back to Delhi. That night, before going to sleep, the Raja handed his pistol to his A.D.C. with the words: "If the Indian Army doesn't reach Srinagar by tomorrow morning, make me sleep for the rest of my life."</p>
+
+                <img src="../assets/img/kashmir/kasmirletter.jpg" alt="Kashmir Instrument of Accession" />
+                <p class="caption">The Instrument of Accession. Note that the letter had blanks — the same format was used for every princely state. Later amendments made Kashmir an integral part of India with the confidence of its own Constitutional Assembly.</p>
+
+                <h3>27/10/1947 — Indian Army Lands in Kashmir</h3>
+
+                <p>Srinagar was surrounded by the tribesmen's army. Amidst the fear of what had happened in Baramulla, Indian Army aircraft and helicopters landed in Srinagar. People welcomed them with great cheer. Sheikh Abdullah, released from prison on Nehru's advice, and his men provided crucial support to the Indian Army. The situation began shifting in India's favor.</p>
+
+                <img src="../assets/img/kashmir/indianarmy.jpg" alt="Indian Army lands in Srinagar" />
+                <p class="caption">Indian Army landed in Srinagar and was welcomed by the people</p>
+
+                <p>Jinnah ordered General Messervy to deploy Pakistan's army. But both India and Pakistan's armies were still commanded by British Commander-in-Chief Sir Claude Auchinleck. He denied permission — the UN had just been formed to prevent international war, and he refused to pit one part of Britain's army against another. Jinnah didn't accept the accession, with Junagadh's precedent in mind. Mountbatten himself had also suggested a plebiscite when signing the letter of accession.</p>
+
+                <h3>2/11/1947 — Announcement of Plebiscite by Nehru</h3>
+
+                <p>Jinnah asked Mountbatten and Nehru to meet in Lahore for a resolution. Patel opposed Nehru attending — Pakistan was the aggressor and Kashmir was now part of India. Nehru boycotted the meeting. Mountbatten met Jinnah in Lahore. Then, on 2nd November 1947, Nehru made an unilateral announcement on All India Radio — without consulting anyone — that once the situation stabilized, a plebiscite would take place. With this, the situation started slipping from India's hands.</p>
+
+                <img src="../assets/img/kashmir/nehruair.jpg" alt="Nehru at All India Radio" />
+                <p class="caption">Nehru at All India Radio</p>
+
+                <p>On 31/12/1947, Nehru took the issue to the United Nations under Chapter 6 — whose resolutions are non-binding. Whatever the UN suggests is not final and abiding upon the nations. We will examine the UN resolution in detail next.</p>
+
+                <h2 id="hyderabad">Hyderabad and the Indian Police Action</h2>
+
+                <p>Hyderabad's Nawab wanted to merge with Pakistan, which was geographically impossible — it was surrounded by India on all sides. The Nawab was supported by the Majlis-e-Ittehadul Muslimeen (MIM), a radical organization whose paramilitary wing, the Razakars, began mass-murdering those in support of India, mostly Hindus — similar to what happened in Baramulla. India couldn't act due to the standstill agreement. On 13/9/1948, India launched Operation Polo. Within 5 days, Hyderabad was annexed. The Sunderlal Committee, constituted by Nehru, reported that 2 lakh people had died at the hands of the Razakars and during the annexation. The Nawab complained to the UN. Nehru, wary of India being seen as an occupier on the global stage, sought a diplomatic route for Kashmir — a decision that would have lasting consequences.</p>
+
+                <img src="../assets/img/kashmir/hyderabad.jpg" alt="Operation Polo, Hyderabad" />
+                <p class="caption">Operation Polo in Hyderabad</p>
+
+                <h2 id="un-resolution">UN Resolution 47</h2>
+
+                <p>The UN issued Resolution 47, outlining a three-step process:</p>
+
+                <ol>
+                    <li><strong>Ceasefire</strong> — Both nations would respect the line of control as of 31/12/1948. India retained two-thirds of Kashmir; one-third went to Pakistan. This was temporary, subject to the steps below.</li>
+                    <li><strong>Demilitarization</strong> — Pakistan, having acknowledged sending army personnel disguised as tribesmen, was ordered to withdraw all forces and tribesmen from Pakistan-Occupied Kashmir. Only then would India begin demilitarization, while retaining a minimal force for public order and citizen safety — since Kashmir had already acceded to India.</li>
+                    <li><strong>Plebiscite</strong> — Once demilitarization was complete, a plebiscite would be conducted, as both nations had agreed.</li>
+                </ol>
+
+                <p>India agreed. Pakistan did not. The plebiscite could never happen because Pakistan never fulfilled condition one. Many people blame India — often without understanding that Pakistan must first vacate Pakistan-Occupied Kashmir for the plebiscite to legally proceed.</p>
+
+                <p>The USA and Britain voted against India in this resolution — a consequence of Cold War politics, as India was more aligned with the Soviet Union.</p>
+
+                <img src="../assets/img/kashmir/unres1.png" alt="UN Resolution 47 — Pakistan must remove forces" />
+                <p class="caption">UN Resolution 47: Pakistan is clearly required to remove its forces and tribesmen</p>
+
+                <img src="../assets/img/kashmir/unres2.png" alt="UN Resolution 47 — India can maintain force" />
+                <p class="caption">UN Resolution 47: India is permitted to maintain a force to govern public order in the state</p>
+
+                <img src="../assets/img/kashmir/unres3.png" alt="UN Resolution 47 — plebiscite only after Pakistan withdraws" />
+                <p class="caption">UN Resolution 47: Plebiscite may only happen after Pakistan removes its forces</p>
+
+                <h2 id="thoughts">Thoughts, Interpretations, and Way Ahead</h2>
+
+                <p>Jawaharlal Nehru always had an idealistic approach — unaware of the shrewd tactics of world politics, yet very keen on protecting India's image as a world leader. I think the situations were such that Nehru considered his approach the best option. Newly emerged from colonial rule, using force to establish authority in a state felt the same as colonizing it. He believed that the people of Jammu and Ladakh always wanted to merge with India, and Kashmir under Sheikh Abdullah would also vote for India. Little did he know that Sheikh Abdullah would later start negotiating with Pakistan as well.</p>
+
+                <p>The USA at that moment voted against India as part of Cold War strategy. Their position rested on a contradiction — they blamed India for occupying Kashmir as a federation where states could leave, yet the USA itself went to civil war over seven states that tried to do exactly that. China annexed Tibet with sheer force and faced no international censure. Meanwhile, India added Hyderabad, Goa, the Andamans, Daman and Diu, and even Lakshadweep (reached half an hour before Pakistan) — all now integral parts of the nation.</p>
+
+                <p>Perhaps Sardar Patel's approach would have been better for Kashmir. But what about the people of Kashmir — they were promised a plebiscite. Even if one happened, a plebiscite that imposes the decision of one community over another based on a handful of votes is against the ideals of democracy. And the citizens of Kashmir themselves chose a Constitutional Assembly that clearly stated: Kashmir was, is, and always will be an integral part of India.</p>
+
+                <img src="../assets/img/kashmir/lal-chowk-srinagar.jpg" alt="Lal Chowk, Srinagar" />
+                <p class="caption">Lal Chowk, Srinagar</p>
+
+                <p>So what went wrong? How does Article 370 come into the picture? Why did Sheikh Abdullah start negotiating with Pakistan? What is the Shimla Accord? Why were wars fought in 1965, 1971, and 1999? Why did the genocide of Kashmiri Pandits take place? How did the abrogation of Article 370 change the dynamics, and why was it not done sooner? <strong>Answers to all these questions in Part 2.</strong></p>
+
+                <div class="sources">
+                    <h2 id="sources">Sources</h2>
+                    <ul>
+                        <li><a href="https://digitallibrary.un.org/record/111955/?ln=en">UN Resolution 47: Kashmir Dispute</a></li>
+                        <li><a href="https://www.amazon.in/Kashmir-Behind-Vale-M-J-Akbar/dp/8174362509">Kashmir Behind the Vale — M.J. Akbar</a></li>
+                        <li><a href="https://www.amazon.in/Kashmir-1947-Rival-Versions-History/dp/0195637666">Kashmir, 1947: Rival Versions of History — Prem Shankar Jha</a></li>
+                        <li><a href="https://www.amazon.in/Kashmir-Dispute-1947-2012-PB/dp/9382381651">The Kashmir Dispute, 1947–2012 — A.G. Noorani</a></li>
+                        <li><a href="https://www.amazon.in/India-After-Gandhi-History-Democracy/dp/9382616977">India After Gandhi — Ram Chandar Guha</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="post-footer">
+                <a href="../blog.html">← cd /blogs</a>
+                <span style="color: var(--text-tertiary); font-size: 13px;">Part 2 coming soon</span>
+            </div>
+        </article>
+    </main>
+
+    <footer class="footer">
+        <div class="terminal-prompt">
+            <div class="prompt-line">ls /contact</div>
+        </div>
+        <div class="footer-left">
+            <a href="mailto:abhiparasharcode@gmail.com">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
+                    <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
+                </svg>
+                hi[thiswebsite]
+            </a>
+            <a href="https://twitter.com/_abhiparashar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                </svg>
+                _abhiparashar
+            </a>
+            <a href="https://www.linkedin.com/in/abhishek-parashar-3a9218150/">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z" />
+                </svg>
+                abhishek-parashar
+            </a>
+            <a href="https://github.com/abhishek-parashar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+                abhishek-parashar
+            </a>
+            <a href="https://www.strava.com/athletes/143971850">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
+                </svg>
+                strava
+            </a>
+            <a href="https://www.threads.net/@abhishek.parashar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.186 3.094c-2.37 0-4.716.548-6.697 1.567a.75.75 0 1 0 .712 1.32c1.796-.924 3.923-1.387 6.015-1.387 5.417 0 9.284 3.771 9.284 9.063 0 2.444-.652 4.63-1.884 6.322-1.247 1.712-3.064 2.771-5.26 3.063a.75.75 0 1 0 .208 1.486c2.516-.335 4.651-1.568 6.14-3.566 1.476-1.98 2.296-4.515 2.296-7.305 0-6.107-4.442-10.563-10.784-10.563zm-.433 5.719c-2.485 0-4.5 2.015-4.5 4.5s2.015 4.5 4.5 4.5 4.5-2.015 4.5-4.5-2.015-4.5-4.5-4.5zm0 1.5c1.657 0 3 1.343 3 3s-1.343 3-3 3-3-1.343-3-3 1.343-3 3-3z"/>
+                </svg>
+                threads
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        const themeText = document.getElementById('theme-text');
+
+        if (currentTheme === 'light') {
+            document.body.classList.add('light-theme');
+            themeText.textContent = 'dark';
+        } else {
+            themeText.textContent = 'light';
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const isLight = body.classList.contains('light-theme');
+            if (isLight) {
+                body.classList.remove('light-theme');
+                localStorage.setItem('theme', 'dark');
+                themeText.textContent = 'light';
+            } else {
+                body.classList.add('light-theme');
+                localStorage.setItem('theme', 'light');
+                themeText.textContent = 'dark';
+            }
+        }
+
+        const headings = document.querySelectorAll('.post-body h2[id]');
+        const tocLinks = document.querySelectorAll('.toc-list a');
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    tocLinks.forEach(a => a.classList.remove('active'));
+                    const active = document.querySelector(`.toc-list a[href="#${entry.target.id}"]`);
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { rootMargin: '0px 0px -70% 0px' });
+
+        headings.forEach(h => observer.observe(h));
+    </script>
+</body>
+</html>

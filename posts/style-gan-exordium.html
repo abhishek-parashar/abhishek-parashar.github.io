@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Abhishek Parashar">
+
+    <title>Style GAN Exordium — Abhishek Parashar</title>
+    <meta name="description" content="Complete Go Through of Style GAN" />
+
+    <style>
+        :root {
+            --bg-color: #141414;
+            --text-color: #e8e8e8;
+            --text-secondary: #909090;
+            --text-tertiary: #6a6a6a;
+            --border-color: #2e2e2e;
+            --border-light: #3a3a3a;
+            --hover-color: #d0d0d0;
+            --cursor-color: #e8e8e8;
+            --link-border: #909090;
+            --image-filter: none;
+        }
+
+        body.light-theme {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #cccccc;
+            --border-light: #aaaaaa;
+            --hover-color: #333333;
+            --cursor-color: #000000;
+            --link-border: #666666;
+            --image-filter: none;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--link-border);
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--hover-color);
+            border-bottom: 1px solid var(--text-color);
+        }
+
+        /* Header/Navigation */
+        .header {
+            max-width: 1200px;
+            margin: 0 auto 40px;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .terminal-prompt {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .prompt-line::before {
+            content: "$ ";
+            color: var(--text-color);
+        }
+
+        .site-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            border-bottom: none;
+        }
+
+        .site-title:hover {
+            border-bottom: none;
+            color: var(--hover-color);
+        }
+
+        .header-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .nav {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav::before {
+            content: "> ";
+            color: var(--text-secondary);
+            font-weight: bold;
+        }
+
+        .nav a {
+            color: var(--text-color);
+            font-size: 14px;
+            text-decoration: none;
+            border-bottom: 1px dotted var(--border-light);
+        }
+
+        .nav a:hover {
+            color: var(--hover-color);
+            border-bottom: 1px solid var(--link-border);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 0;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 16px;
+            font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--text-color);
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .theme-toggle::before { content: "["; margin-right: 4px; }
+        .theme-toggle::after  { content: "]"; margin-left: 4px; }
+
+        /* Post layout */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+            display: flex;
+            gap: 48px;
+            align-items: flex-start;
+        }
+
+        /* TOC sidebar */
+        .toc {
+            width: 200px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 32px;
+        }
+
+        .toc-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .toc-label::before {
+            content: "# ";
+        }
+
+        .toc-list {
+            list-style: none;
+            border-left: 1px solid var(--border-color);
+            padding-left: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toc-list a {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            border-bottom: none;
+            line-height: 1.4;
+            transition: color 0.2s ease;
+        }
+
+        .toc-list a:hover,
+        .toc-list a.active {
+            color: var(--text-color);
+            border-bottom: none;
+        }
+
+        /* Article takes remaining space */
+        article {
+            flex: 1;
+            min-width: 0;
+        }
+
+        @media (max-width: 900px) {
+            .toc { display: none; }
+            .container { display: block; }
+        }
+
+        /* Post header */
+        .post-header {
+            margin-bottom: 48px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .post-title {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 16px;
+        }
+
+        .post-meta {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .post-tag {
+            background: var(--border-color);
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+
+        /* Post body */
+        .post-body h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 40px 0 16px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .post-body h2::before {
+            content: "## ";
+            color: var(--text-tertiary);
+        }
+
+        .post-body p {
+            margin-bottom: 20px;
+            line-height: 1.85;
+            color: var(--text-color);
+        }
+
+        .post-body img {
+            max-width: 100%;
+            display: block;
+            margin: 24px auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .post-body figcaption,
+        .post-body .caption {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: -16px;
+            margin-bottom: 24px;
+        }
+
+        .post-body figcaption a,
+        .post-body .caption a {
+            color: var(--text-secondary);
+        }
+
+        .post-body center {
+            margin: 24px 0;
+        }
+
+        /* Footer nav */
+        .post-footer {
+            margin-top: 60px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .post-footer a {
+            color: var(--text-secondary);
+        }
+
+        /* Site footer */
+        .footer {
+            max-width: 1200px;
+            margin: 80px auto 0;
+            padding: 40px 0 60px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-left {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .footer-left a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-color);
+            font-size: 14px;
+            border-bottom: none;
+        }
+
+        .footer-left a::before {
+            content: "- ";
+            color: var(--text-tertiary);
+        }
+
+        .footer-left svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-color);
+            transition: fill 0.3s ease;
+        }
+
+        .footer-left a:hover svg {
+            fill: var(--hover-color);
+        }
+
+        /* Cursor */
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: var(--cursor-color);
+            margin-left: 3px;
+            animation: blink 1s infinite;
+            vertical-align: text-bottom;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .theme-toggle {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 0 auto 20px;
+            }
+
+            .post-title { font-size: 24px; }
+
+            .header { padding: 20px; }
+            .footer { padding: 40px 20px; }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+            <span id="theme-text">light</span>
+        </button>
+        <div class="terminal-prompt">
+            <div class="prompt-line">whoami</div>
+        </div>
+        <a href="../index.html" class="site-title">
+            <img src="../assets/profile.jpeg" alt="Abhishek Parashar" class="header-avatar">
+            Abhishek Parashar<span class="cursor"></span>
+        </a>
+        <div class="terminal-prompt">
+            <div class="prompt-line">ls /links</div>
+        </div>
+        <nav>
+            <ul class="nav">
+                <li><a href="../index.html">cd ~</a></li>
+                <li><a href="https://scholar.google.com/citations?user=Nu16wF0AAAAJ&hl=en">cd /research</a></li>
+                <li><a href="../blog.html">cd /blogs</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <aside class="toc">
+            <div class="toc-label">Contents</div>
+            <ul class="toc-list">
+                <li><a href="#style-gan-introduction">Style GAN Introduction</a></li>
+                <li><a href="#gan-intuition">GAN Intuition</a></li>
+                <li><a href="#progan-architecture">ProGAN Architecture</a></li>
+                <li><a href="#style-gan">Style GAN</a></li>
+                <li><a href="#mapping-network">Mapping Network</a></li>
+                <li><a href="#adain">AdaIN</a></li>
+                <li><a href="#constant-input">Constant Input</a></li>
+                <li><a href="#code">The Code</a></li>
+            </ul>
+        </aside>
+
+        <article>
+        <div class="terminal-prompt">
+            <div class="prompt-line">cat style-gan-exordium.md</div>
+        </div>
+            <div class="post-header">
+                <h1 class="post-title">Style GAN Exordium</h1>
+                <div class="post-meta">
+                    <span>2020-03-20</span>
+                    <span>~15 min read</span>
+                    <span class="post-tag">#GANs</span>
+                    <span class="post-tag">#DeepLearning</span>
+                </div>
+            </div>
+
+            <div class="post-body">
+
+                <p>Ever wondered how a letter combined from English and Hindi would look like? Or how the Mona Lisa painted by Picasso would look like? How a friend of yours would look in the opposite gender or aged? Or how the Night King would look with different expressions?</p>
+
+                <p>With growing advancement in the field of Deep Learning, all this is not only possible, but relatively easy to do with the inference of a powerful neural network (rather than hours spent on Photoshop). The neural networks that make this possible are termed adversarial networks. Often described as one of the coolest concepts in machine learning, they are actually a set of more than one network (usually two) which are continually competing with each other (hence, adversarially), producing some interesting results along the way.</p>
+
+                <p>In this article we will dive deep into the Style GAN architecture and get our hands dirty with code by creating our own images exactly like <a href="https://www.thispersondoesnotexist.com/">This Person Doesn't Exist</a>.</p>
+
+                <h2 id="style-gan-introduction">Style GAN Introduction</h2>
+
+                <p>StyleGAN was originally an open-source project by NVIDIA to create a generative model that could output high-resolution human faces. The basis of the model was established by a <a href="https://arxiv.org/pdf/1812.04948.pdf">research paper</a> published by Tero Karras, Samuli Laine, and Timo Aila, all researchers at NVIDIA.</p>
+
+                <p>But first, let's build some intuition about GANs.</p>
+
+                <h2 id="gan-intuition">GAN Intuition</h2>
+
+                <p>The basic components of every GAN are two neural networks — a generator that synthesizes new samples from scratch, and a discriminator that takes samples from both the training data and the generator's output and predicts if they are "real" or "fake".</p>
+
+                <img src="https://cdn-media-1.freecodecamp.org/images/m41LtQVUf3uk5IOYlHLpPazxI3pWDwG8VEvU" alt="GAN diagram" />
+                <p class="caption">source: <a href="https://www.freecodecamp.org/news/an-intuitive-introduction-to-generative-adversarial-networks-gans-7a2264a81394/">freecodecamp</a></p>
+
+                <p>The generator input is a random vector (noise) and therefore its initial output is also noise. Over time, as it receives feedback from the discriminator, it learns to synthesize more "realistic" images. The discriminator also improves over time by comparing generated samples with real samples, making it harder for the generator to deceive it.</p>
+
+                <p>The loss function of GANs works on a Min-Max game — where the loss from the generator is minimized and that from the discriminator is maximized.</p>
+
+                <img src="http://images1.programmersought.com/115/52/52cea78190b013c7fa4ecd0f82ca2fab.png" alt="GAN loss function" />
+                <p class="caption">source: <a href="http://www.programmersought.com/article/6079817980/">programmersought</a></p>
+
+                <p>There were significant problems in generating high-resolution images from this standard GAN method. To overcome this, NVIDIA developed ProGAN — Progressive Growing Generative Adversarial Neural Network.</p>
+
+                <h2 id="progan-architecture">ProGAN Architecture</h2>
+
+                <p>ProGAN works by gradually increasing the resolution, ensuring that the network evolves slowly — initially learning a simple problem before progressing to learning more complex problems (or, in this case, images of a higher resolution). This kind of training principle ensures stability and has been proven to minimize common problems associated with GANs such as mode collapse. It also makes certain that high level features are worked upon first before moving on to the finer details, reducing the likelihood of such features being generated incorrectly.</p>
+
+                <img src="../assets/img/progan-comparison.png" alt="ProGAN vs traditional GAN comparison" />
+                <p class="caption">No. of images trained for a given time — comparing traditional GAN with ProGAN. <a href="https://towardsdatascience.com/progan-how-nvidia-generated-images-of-unprecedented-quality-51c98ec2cbd2">towardsdatascience</a></p>
+
+                <p>ProGAN works fast and is able to create high-resolution images but a small change in input affects multiple features at the same time. A good analogy would be genes — changing a single gene might affect multiple traits. To overcome this, certain changes were made to make the Style GAN architecture more robust.</p>
+
+                <h2 id="style-gan">Style GAN</h2>
+
+                <p>Style GAN architecture allows the user to tune hyperparameters. Moreover, due to the addition of style at each convolution layer, it allows for a factor of variability in generated images.</p>
+
+                <img src="https://www.topbots.com/wp-content/uploads/2019/03/05_StyleGAN_web.jpg" alt="Style GAN architecture" />
+                <p class="caption">Traditional GAN architecture compared to Style GAN architecture. <a href="https://www.topbots.com/ai-research-generative-adversarial-network-images/">source</a></p>
+
+                <p>One point to be noted here is that all the changes in the Style GAN architecture are made to the Generator part only. The Discriminator is left untouched.</p>
+
+                <p>Style GAN allows two images to be generated and then combined by taking low-level features from one and high-level features from the other. A mixing regularization technique is used by the generator, causing some percentage of both to appear in the output image.</p>
+
+                <p>At every convolution layer, different styles can be used to generate an image: coarse styles having a resolution between 4×4 to 8×8, middle styles with a resolution of 16×16 to 32×32, or fine styles with a resolution from 64×64 to 1024×1024. These coarse styles govern the features and details like face shape, pose, and hair style — while minute details like eye colour or other microstructures are governed by fine styles.</p>
+
+                <h2 id="mapping-network">Mapping Network</h2>
+
+                <p>The Style GAN uses a mapping network to input a normalised vector W to the network. The mapping network as developed in the original <a href="https://arxiv.org/abs/1812.04948">NVIDIA Style GAN paper</a> has 8 fully connected layers of 512×1 dimension.</p>
+
+                <img src="../assets/img/mapping_netowrk.webp" alt="Mapping Network of Style GAN" />
+                <p class="caption">Mapping Network of Style GAN architecture. <a href="https://www.lyrn.ai/2018/12/26/a-style-based-generator-architecture-for-generative-adversarial-networks/">source</a></p>
+
+                <p>The mapping network is used because the traditional GAN is unable to control features and styles to a great extent. NVIDIA's architecture includes an intermediate "latent space", which can be thought of as being "detachable" — giving an edge over traditional GAN architecture. The traditional GAN architecture is biased according to the dataset and causes a problem known as <strong>Feature Entanglement</strong>.</p>
+
+                <p>A good example would be the entanglement between the features of hair color and gender. If the dataset used for training has a general trend of males having short hair and females having long hair, the neural network would learn that males can only have short hair and vice-versa. As a result, changing the latent vector to obtain long hair for a male image would also end up changing the gender, leading to an image of a woman.</p>
+
+                <img src="https://user-images.githubusercontent.com/4602302/53282791-d6f68380-374d-11e9-8248-d0227b071bf0.gif" alt="Feature Entanglement" />
+                <p class="caption">Feature Entanglement. <a href="https://github.com/Puzer/stylegan-encoder/issues/1">source</a></p>
+
+                <p>The mapping network helps overcome this issue of feature entanglement and generates more realistic images.</p>
+
+                <h2 id="adain">AdaIN</h2>
+
+                <p>A special layer called AdaIN (Adaptive Instance Normalization) is used for adding the mapping network output W to the synthesis network. The module is added to each resolution level of the Synthesis Network and defines the visual expression of the features at that level. Before adding to the synthesis network, AdaIN is also responsible for standardizing the mapping network output to standard Gaussian.</p>
+
+                <img src="../assets/img/ada_in.webp" alt="AdaIN formula" />
+                <p class="caption">Calculation of the Adaptive Instance Normalization (AdaIN) in StyleGAN.</p>
+
+                <h2 id="constant-input">Removing Traditional Input Noise</h2>
+
+                <p>The traditional GAN input is Gaussian noise that wraps around the complete mapping network space. Consider a situation where images of males and females are present in a dataset mapped according to beard / no beard. Female facial images are unlikely to have beards — so Gaussian noise in this case would wrap around the complete feature space, increasing the input size where it is not needed. The researchers found that image features are controlled by W and AdaIN, so the initial input can be omitted and replaced by constant values.</p>
+
+                <img src="../assets/img/constant-input.png" alt="Constant input in Style GAN" />
+                <p class="caption">Replacing the random input with a learned constant.</p>
+
+                <p>The StyleGAN architecture also adds noise on a per-pixel basis after each convolution layer. This creates "stochastic variation" in the image — allowing localized style changes to be applied to stochastic aspects like wrinkles, freckles, skin pores, stubble, etc.</p>
+
+                <img src="../assets/img/stochastic-variation.png" alt="Stochastic variation in Style GAN" />
+                <p class="caption">Explanation of Stochastic Variation in StyleGAN.</p>
+
+                <h2 id="code">That's How We CODE!</h2>
+
+                <p>After all this theory it's time to finally enter the fun part — understanding the code and implementing our own Style GAN architecture.</p>
+
+                <p>First, we sample a whole bunch of random vectors and send them through a generator network to produce images. Once we have that dataset, we use ResNet to map images back to their respective latent codes.</p>
+
+                <p>The model pipeline looks like this: a query image is taken (can be your own) and passed through a ResNet to generate a latent code. The latent code is passed through a generator to produce facial images. These generated images are passed through a VGG network to generate a semantic feature vector — extracted from a pre-final layer. The query image is also fed through VGG to generate semantic features. The L2 distance between both feature vectors is then minimized by running gradient descent, sending gradients back into the latent code. Note that throughout this backpropagation process, the generator weights are fixed — only the latent code at the input is updated.</p>
+
+                <p>You can try implementing your own Style GAN and generate images. The link below contains the code for the same.</p>
+            </div>
+
+            <div class="post-footer">
+                <a href="../blog.html">← cd /blogs</a>
+                <a href="https://github.com/abhishek-parashar/style-gan/blob/master/encoder_style_gan.ipynb" target="_blank">Style GAN Encoder Notebook →</a>
+            </div>
+        </article>
+    </main>
+
+    <footer class="footer">
+        <div class="terminal-prompt">
+            <div class="prompt-line">ls /contact</div>
+        </div>
+        <div class="footer-left">
+            <a href="mailto:abhiparasharcode@gmail.com">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
+                    <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
+                </svg>
+                hi[thiswebsite]
+            </a>
+            <a href="https://twitter.com/_abhiparashar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                </svg>
+                _abhiparashar
+            </a>
+            <a href="https://www.linkedin.com/in/abhishek-parashar-3a9218150/">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z" />
+                </svg>
+                abhishek-parashar
+            </a>
+            <a href="https://github.com/abhishek-parashar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+                abhishek-parashar
+            </a>
+            <a href="https://www.strava.com/athletes/143971850">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
+                </svg>
+                strava
+            </a>
+            <a href="https://www.threads.net/@abhishek.parashar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.186 3.094c-2.37 0-4.716.548-6.697 1.567a.75.75 0 1 0 .712 1.32c1.796-.924 3.923-1.387 6.015-1.387 5.417 0 9.284 3.771 9.284 9.063 0 2.444-.652 4.63-1.884 6.322-1.247 1.712-3.064 2.771-5.26 3.063a.75.75 0 1 0 .208 1.486c2.516-.335 4.651-1.568 6.14-3.566 1.476-1.98 2.296-4.515 2.296-7.305 0-6.107-4.442-10.563-10.784-10.563zm-.433 5.719c-2.485 0-4.5 2.015-4.5 4.5s2.015 4.5 4.5 4.5 4.5-2.015 4.5-4.5-2.015-4.5-4.5-4.5zm0 1.5c1.657 0 3 1.343 3 3s-1.343 3-3 3-3-1.343-3-3 1.343-3 3-3z"/>
+                </svg>
+                threads
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        const themeText = document.getElementById('theme-text');
+
+        if (currentTheme === 'light') {
+            document.body.classList.add('light-theme');
+            themeText.textContent = 'dark';
+        } else {
+            themeText.textContent = 'light';
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const isLight = body.classList.contains('light-theme');
+            if (isLight) {
+                body.classList.remove('light-theme');
+                localStorage.setItem('theme', 'dark');
+                themeText.textContent = 'light';
+            } else {
+                body.classList.add('light-theme');
+                localStorage.setItem('theme', 'light');
+                themeText.textContent = 'dark';
+            }
+        }
+
+        // Highlight active TOC link on scroll
+        const headings = document.querySelectorAll('.post-body h2[id]');
+        const tocLinks = document.querySelectorAll('.toc-list a');
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    tocLinks.forEach(a => a.classList.remove('active'));
+                    const active = document.querySelector(`.toc-list a[href="#${entry.target.id}"]`);
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { rootMargin: '0px 0px -70% 0px' });
+
+        headings.forEach(h => observer.observe(h));
+    </script>
+</body>
+</html>
