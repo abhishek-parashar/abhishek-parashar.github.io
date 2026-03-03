@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Abhishek Parashar">
+
+    <title>Prompting as Storytelling — Abhishek Parashar</title>
+    <meta name="description" content="Understanding how language models work and why the best prompts share the same principles as good storytelling." />
+
+    <style>
+        :root {
+            --bg-color: #141414;
+            --text-color: #e8e8e8;
+            --text-secondary: #909090;
+            --text-tertiary: #6a6a6a;
+            --border-color: #2e2e2e;
+            --border-light: #3a3a3a;
+            --hover-color: #d0d0d0;
+            --cursor-color: #e8e8e8;
+            --link-border: #909090;
+            --image-filter: none;
+        }
+
+        body.light-theme {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #cccccc;
+            --border-light: #aaaaaa;
+            --hover-color: #333333;
+            --cursor-color: #000000;
+            --link-border: #666666;
+            --image-filter: none;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--link-border);
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--hover-color);
+            border-bottom: 1px solid var(--text-color);
+        }
+
+        /* Header */
+        .header {
+            max-width: 1200px;
+            margin: 0 auto 40px;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .terminal-prompt {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .prompt-line::before {
+            content: "$ ";
+            color: var(--text-color);
+        }
+
+        .site-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            border-bottom: none;
+        }
+
+        .site-title:hover { border-bottom: none; color: var(--hover-color); }
+
+        .header-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .nav {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav::before {
+            content: "> ";
+            color: var(--text-secondary);
+            font-weight: bold;
+        }
+
+        .nav a {
+            color: var(--text-color);
+            font-size: 14px;
+            text-decoration: none;
+            border-bottom: 1px dotted var(--border-light);
+        }
+
+        .nav a:hover {
+            color: var(--hover-color);
+            border-bottom: 1px solid var(--link-border);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 0;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 16px;
+            font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--text-color);
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .theme-toggle::before { content: "["; margin-right: 4px; }
+        .theme-toggle::after  { content: "]"; margin-left: 4px; }
+
+        /* Post layout */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+            display: flex;
+            gap: 48px;
+            align-items: flex-start;
+        }
+
+        /* TOC sidebar */
+        .toc {
+            width: 200px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 32px;
+        }
+
+        .toc-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .toc-label::before { content: "# "; }
+
+        .toc-list {
+            list-style: none;
+            border-left: 1px solid var(--border-color);
+            padding-left: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toc-list a {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            border-bottom: none;
+            line-height: 1.4;
+            transition: color 0.2s ease;
+        }
+
+        .toc-list a:hover,
+        .toc-list a.active {
+            color: var(--text-color);
+            border-bottom: none;
+        }
+
+        article { flex: 1; min-width: 0; }
+
+        /* Post header */
+        .post-header {
+            margin-bottom: 48px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .post-title {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 16px;
+        }
+
+        .post-meta {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .post-tag {
+            background: var(--border-color);
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+
+        /* Post body */
+        .post-body h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 40px 0 16px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .post-body h2::before {
+            content: "## ";
+            color: var(--text-tertiary);
+        }
+
+        .post-body p { margin-bottom: 20px; line-height: 1.85; }
+
+        .post-body ul {
+            margin: 0 0 20px 20px;
+            line-height: 2;
+            color: var(--text-secondary);
+        }
+
+        .post-body em {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .post-body strong {
+            color: var(--text-color);
+            font-weight: 700;
+        }
+
+        .post-body img {
+            max-width: 100%;
+            display: block;
+            margin: 24px auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .post-body .caption {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: -16px;
+            margin-bottom: 24px;
+        }
+
+        .post-body .caption a { color: var(--text-secondary); }
+
+        /* Code blocks for prompt examples */
+        .prompt-example {
+            background: var(--border-color);
+            padding: 16px;
+            margin: 16px 0;
+            border-left: 3px solid var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .prompt-label {
+            color: var(--text-tertiary);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .prompt-label::before { content: "> "; }
+
+        /* Post footer nav */
+        .post-footer {
+            margin-top: 60px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .post-footer a { color: var(--text-secondary); }
+
+        /* Site footer */
+        .footer {
+            max-width: 1200px;
+            margin: 80px auto 0;
+            padding: 40px 0 60px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-left { display: flex; flex-direction: column; gap: 10px; }
+
+        .footer-left a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-color);
+            font-size: 14px;
+            border-bottom: none;
+        }
+
+        .footer-left a::before { content: "- "; color: var(--text-tertiary); }
+
+        .footer-left svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-color);
+            transition: fill 0.3s ease;
+        }
+
+        .footer-left a:hover svg { fill: var(--hover-color); }
+
+        /* Cursor */
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: var(--cursor-color);
+            margin-left: 3px;
+            animation: blink 1s infinite;
+            vertical-align: text-bottom;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .toc { display: none; }
+            .container { display: block; }
+        }
+
+        @media (max-width: 768px) {
+            .theme-toggle {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 0 auto 20px;
+            }
+
+            .post-title { font-size: 24px; }
+            .header { padding: 20px; }
+            .footer { padding: 40px 20px; }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+            <span id="theme-text">light</span>
+        </button>
+        <div class="terminal-prompt">
+            <div class="prompt-line">whoami</div>
+        </div>
+        <a href="../index.html" class="site-title">
+            <img src="../assets/profile.jpeg" alt="Abhishek Parashar" class="header-avatar">
+            <span>Abhishek Parashar<span class="cursor"></span></span>
+        </a>
+        <div class="terminal-prompt">
+            <div class="prompt-line">ls /links</div>
+        </div>
+        <nav>
+            <ul class="nav">
+                <li><a href="../index.html">cd ~</a></li>
+                <li><a href="https://scholar.google.com/citations?user=Nu16wF0AAAAJ&hl=en">cd /research</a></li>
+                <li><a href="../blog.html">cd /blogs</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <aside class="toc">
+            <div class="toc-label">Contents</div>
+            <ul class="toc-list">
+                <li><a href="#what-happens">What's Happening</a></li>
+                <li><a href="#audience">Know Your Audience</a></li>
+                <li><a href="#context">Build the World</a></li>
+                <li><a href="#examples">Show Examples</a></li>
+                <li><a href="#specificity">Be Specific</a></li>
+                <li><a href="#verification">Build Verification</a></li>
+                <li><a href="#weight">Words That Matter</a></li>
+                <li><a href="#conclusion">Conclusion</a></li>
+            </ul>
+        </aside>
+
+        <article>
+            <div class="terminal-prompt">
+                <div class="prompt-line">cat prompting-as-storytelling.md</div>
+            </div>
+
+            <div class="post-header">
+                <h1 class="post-title">Prompting as Storytelling</h1>
+                <div class="post-meta">
+                    <span>2026-03-03</span>
+                    <span>~15 min read</span>
+                    <span class="post-tag">#AI</span>
+                    <span class="post-tag">#LLMs</span>
+                    <span class="post-tag">#Prompting</span>
+                </div>
+            </div>
+
+            <div class="post-body">
+
+                <p>I'm sure most of you have noticed this at some point. You ask an AI a question and the response feels disappointingly vague. You ask the same question again but this time with a bit more structure or a few extra details, and suddenly the response is noticeably better.</p>
+
+                <p>But that naturally raises a few questions that I think a lot of people quietly wonder about.</p>
+
+                <p>What does an ideal prompt actually look like? What information should I be including? How should I structure what I'm asking? Do longer prompts work better or is shorter cleaner?</p>
+
+                <p>I had the same questions. So I went looking for answers. Read through quite a bit of research on how language models work, ran a lot of experiments with different prompt styles, and hit more than a few dead ends along the way.</p>
+
+                <p>What I eventually found was something I didn't expect. The prompts that worked best weren't the most technical ones. They weren't the ones with clever formatting or special keywords. The ones that consistently gave great output were simply the well communicated ones. Clear context, a defined audience, a specific goal, and enough detail for the model to actually work with.</p>
+
+                <p>That observation led me toward an interesting parallel. Because those are also exactly the things that make a good story work.</p>
+
+                <p>The more I sat with that connection, the more sense it made. And after a lot of testing and quite a few frustrating outputs along the way, here is what I've come to understand about why prompting and storytelling are really the same skill wearing different clothes.</p>
+
+                <h2 id="what-happens">What's Actually Happening When You Send a Prompt</h2>
+
+                <p>Understanding the mechanics here changed how I think about prompts entirely. So let me share the part that I found most useful, without going too deep into the weeds.</p>
+
+                <p>When you send a message to a language model, the model doesn't read your words the way we do. Every word gets converted into a number, a long precise number called a vector. Think of it as each word receiving its own coordinate inside a massive mathematical space. Like a GPS address, but for meaning.</p>
+
+                <img src="../assets/img/image-20260302-113111.png" alt="Word vectors visualization" />
+                <p class="caption"><a href="https://blog.clickpointsoftware.com/vector-embeddings-for-marketing" target="_blank" rel="noopener">source</a></p>
+
+                <p>What makes this interesting is that words with similar meanings end up close to each other in that space. "Happy" and "joyful" are neighbours. "Invoice" and "receipt" share a street. The model has essentially learned the geography of language through billions of examples, and it uses that geography to figure out what you're asking.</p>
+
+                <img src="../assets/img/vector-embeddings.jpg" alt="Vector embeddings visualization" />
+                <p class="caption"><a href="https://weaviate.io/blog/vector-embeddings-explained" target="_blank" rel="noopener">source</a></p>
+
+                <p>When you write a prompt, your words don't just get individual coordinates. They form a cluster together. A neighbourhood of connected meaning that signals to the model, this is the territory we're working in.</p>
+
+                <p>A specific, well structured prompt creates a tight cluster. The model has a clear address and navigates there confidently. A vague prompt like "write something about leadership" scatters that cluster across an enormous area. The model ends up somewhere in the middle of it all, producing something that technically fits the topic but doesn't really fit what you needed.</p>
+
+                <p>This isn't a flaw in the model. It's geometry. And once I understood that, I stopped being frustrated with vague outputs and started being more precise with my inputs.</p>
+
+                <h2 id="audience">Know Who You're Writing For</h2>
+
+                <p>Going through the research on how models generate text, one thing became very clear to me. Audience specification is one of the most underused levers in prompting.</p>
+
+                <p>When you tell a model who it's writing for, you're not just adding a polite detail. You're actively shifting which part of its learned knowledge it draws from. "Write for someone new to this topic" pulls the output toward simpler vocabulary, more analogies, more patient explanation. "Write for a senior technical audience" pulls it toward precision, assumed knowledge, and efficiency. Same question, completely different clusters, very different outputs.</p>
+
+                <p>Without that specification, the model defaults to something generically middle-of-the-road. Not wrong exactly, but not right for anyone in particular either.</p>
+
+                <p>Doraemon is a good way to think about this. The show has been running since 1973 and has somehow always felt right for its audience, whether that's a seven year old watching it on a Saturday morning or an adult revisiting it years later with a strange wave of nostalgia. Fujiko F. Fujio didn't write Doraemon for a vague general audience. He wrote it for children who were struggling, a bit lost, and needed to believe that tomorrow could be better than today. That specific emotional target shaped every story, every gadget, every interaction between Nobita and Doraemon. The show knew exactly who it was talking to, and that's a big part of why it still works.</p>
+
+                <p>Prompts need that same clarity. When you tell a model who it's writing for, the output shifts in ways that are hard to achieve any other way.</p>
+
+                <div class="prompt-example">
+                    <div class="prompt-label">Bad Prompt</div>
+                    <p style="margin: 0;">"Explain quantum entanglement."</p>
+                </div>
+
+                <p>What comes back is usually something encyclopaedia-like. Covers the facts, serves nobody particularly well.</p>
+
+                <div class="prompt-example">
+                    <div class="prompt-label">Good Prompt</div>
+                    <p style="margin: 0;">"Please explain quantum entanglement to someone who loves science but hasn't studied advanced physics. One simple everyday analogy, no equations, and make it feel genuinely interesting rather than like a definition."</p>
+                </div>
+
+                <p>After testing variations of this kind of prompt many times, the difference in output quality when you specify the audience is consistent and significant. It's one of the first things I now add to any prompt where the output needs to land with a specific person.</p>
+
+                <h2 id="context">Build the World Before You Tell the Story</h2>
+
+                <p>This is something I kept bumping into when I was studying how context affects model output. The more coherent and detailed the context in a prompt, the better the cluster it forms, and the more focused the response.</p>
+
+                <p>Pokémon is a surprisingly good example of why this matters. When Satoshi Tajiri built that world in the mid-90s, he didn't just design creatures. He built an entire system with internal logic. Eighteen types with consistent rules. Different regions with distinct personalities. A society with its own norms and institutions. Every piece fits with every other piece. And because of that, the world feels real and navigable.</p>
+
+                <p>Good prompts need that same internal coherence. Every detail you add is another coordinate that tightens the cluster. "Sustainable clothing brand, millennial audience, recycled materials, warm idealistic tone" gives the model a well-defined neighbourhood with clear edges. The output reflects that precision.</p>
+
+                <p>Remove those details and you're left with a loose, scattered cluster. The model fills the gaps with whatever is most statistically average for that topic. Which is almost never what you actually wanted.</p>
+
+                <div class="prompt-example">
+                    <div class="prompt-label">Bad Prompt</div>
+                    <p style="margin: 0;">"Write me a marketing email for my product."</p>
+                </div>
+
+                <p>No context, no audience, no tone. The model writes the most generic version of a marketing email that exists.</p>
+
+                <div class="prompt-example">
+                    <div class="prompt-label">Good Prompt</div>
+                    <p style="margin: 0;">"I run a small sustainable clothing brand for environmentally conscious millennials. Please write a marketing email announcing our new collection made from recycled ocean plastic. The tone should feel warm and genuine, like a brand that truly believes in what it's doing. End with a clear call to action to visit our website."</p>
+                </div>
+
+                <p>Through my own testing, adding this kind of contextual detail consistently moves the output from serviceable to actually useful. The model isn't smarter with more context. It's just better directed.</p>
+
+                <h2 id="examples">Show an Example, Don't Just Describe One</h2>
+
+                <p>One of the things I dug into quite a bit was few-shot learning, which is essentially what happens when you give a model examples alongside your request. And the results, both in the research and in my own experiments, are pretty clear.</p>
+
+                <p>When you include an example of what you want, your example and your task start clustering together in the same neighbourhood. The model can see the destination because you've shown it something that already lives there. Without an example, it's navigating from your description alone. With one, it has a landmark.</p>
+
+                <p>The real world equivalent is social proof in storytelling. Instead of telling someone a path leads somewhere good, you show them someone who already walked it. "She was exactly where you are. She made this choice. Here's what happened." The example does work that no amount of description can match.</p>
+
+                <div class="prompt-example">
+                    <div class="prompt-label">Bad Prompt</div>
+                    <p style="margin: 0;">"Summarize these customer reviews into one paragraph."</p>
+                </div>
+
+                <p>A summary will come back. Whether it matches the tone, length, or structure you needed is essentially luck at this point.</p>
+
+                <div class="prompt-example">
+                    <div class="prompt-label">Good Prompt</div>
+                    <p style="margin: 0;">"Please summarize the following customer reviews into one paragraph. Here's the kind of output I'm looking for:</p>
+                    <p style="margin: 10px 0 0 0; font-style: italic;">Example: Customers really appreciated the fast delivery and helpful service. A few mentioned the packaging could be improved, but overall most said they'd happily buy again.</p>
+                    <p style="margin: 10px 0 0 0;">Could you do the same for these reviews? [paste reviews here]"</p>
+                </div>
+
+                <p>In my testing, adding even one well-chosen example cuts down revision cycles significantly. The model stops guessing at what "good" looks like because you've already shown it.</p>
+
+                <h2 id="specificity">Specificity Is Not Demanding, It's Necessary</h2>
+
+                <p>Something I noticed after analyzing a lot of my own failed prompts is that most of them were vague in ways I didn't even register at the time. I thought I was being clear. Looking back, I was gesturing at a topic and hoping the model would somehow read my mind.</p>
+
+                <p>Every specific constraint you add trims the cluster of possible outputs. "Opinion piece" removes poetry and news reports. "300 words" removes essays. "General audience" removes academic writing. Each instruction carves the space down further until there's really only one neighbourhood left to write from. That's when the output starts feeling like it came from someone who understood the brief.</p>
+
+                <div class="prompt-example">
+                    <div class="prompt-label">Bad Prompt</div>
+                    <p style="margin: 0;">"Write something about climate change."</p>
+                </div>
+
+                <p>Technically a request. Practically, not enough to work with.</p>
+
+                <div class="prompt-example">
+                    <div class="prompt-label">Good Prompt</div>
+                    <p style="margin: 0;">"Could you write a 300-word opinion piece for a general audience? The argument is that individual lifestyle changes alone can't address climate change and that systemic policy reform is what's actually needed. Confident but not preachy tone, and it would be great if it opened with a surprising statistic."</p>
+                </div>
+
+                <p>The difference in what comes back is not subtle. Specificity is one of the simplest things to improve in a prompt and one of the highest-return changes you can make.</p>
+
+                <h2 id="verification">Build Verification Into the Prompt Itself</h2>
+
+                <p>This one came from a mistake I made on an actual project. I was using a model to pull out details from a set of documents and the output sounded authoritative and well-structured. I used it. Two specific facts turned out to be wrong in ways that mattered.</p>
+
+                <p>After that I started thinking more carefully about how models generate responses. They don't retrieve verified facts. They produce the most statistically likely continuation of your prompt based on training data. Confident-sounding and accurate are not the same thing, and the model has no way of flagging the difference unless you ask it to.</p>
+
+                <p>So now I ask it to.</p>
+
+                <div class="prompt-example">
+                    <div class="prompt-label">Bad Prompt</div>
+                    <p style="margin: 0;">"Tell me the key provisions of 42nd Constitutional Ammendment."</p>
+                </div>
+
+                <p>Sounds fine. The output will be largely accurate with a few things that might not hold up to scrutiny, and you won't easily know which parts those are.</p>
+
+                <div class="prompt-example">
+                    <div class="prompt-label">Good Prompt</div>
+                    <p style="margin: 0;">"Could you walk me through the key provisions of 42nd Constitutional Ammendment.? After your answer, please flag anything you're not fully certain about and suggest where I should verify it. And feel free to ask if there's a specific part I'd like to go deeper on."</p>
+                </div>
+
+                <p>Building verification into the prompt changes the dynamic entirely. The model surfaces its own uncertainty rather than smoothing over it. After making this a regular habit, I've caught several things that would have been quietly wrong in the final output.</p>
+
+                <h2 id="weight">Why Certain Words Carry More Weight</h2>
+
+                <p>The last piece of this, and the one that tied everything together for me, comes from how attention mechanisms actually work in transformer-based models. This is the model architecture on which all the LLMs like ChatGPT, Claude are based on.</p>
+
+                <p>Simply put the model doesn't treat every word in your prompt with equal weight. It assigns more attention to words that seem to carry more signal, things like your goal, your audience, your constraints, and the format you need. These become anchors that the model keeps referring back to as it generates a response.</p>
+
+                <p>Think of it this way. If your prompt says "write a short email for a frustrated customer who received a damaged product", the words "short", "frustrated customer" and "damaged product" become strong anchors. The model holds onto them throughout and the output stays focused around those specific signals.</p>
+
+                <p>But if your prompt simply says "write a customer email", there are no real anchors to hold onto. The model drifts toward the most average, most generic version of a customer email it has ever seen. Which is usually not what anyone actually needed.</p>
+
+                <p>The same thing plays out with tone and format. A prompt that says "explain this in simple conversational language like you're talking to a friend" gives the model a clear anchor for how to write. A prompt that just says "explain this" leaves that anchor missing entirely and the model defaults to something formal and textbook-like because that's where the statistical average sits.</p>
+
+                <p>When your prompt has several strong, specific, coherent anchor words, the generation stays focused throughout. When your prompt is vague or scattered, those anchors are weak and the output drifts in whatever direction the training data most commonly goes. Which, more often than not, lands somewhere safe, average, and not particularly useful.</p>
+
+                <p>A well-designed poster works on the same principle. Your eye doesn't read every element equally. It goes to the headline, then the key image, then the supporting detail. A good designer puts the most important things where attention naturally lands first. Prompts respond to the same logic.</p>
+
+                <div class="prompt-example">
+                    <div class="prompt-label">Bad Prompt</div>
+                    <p style="margin: 0;">"Write a blog post about artificial intelligence and also make sure you don't use technical jargon because my audience isn't technical and keep it under 500 words and make the tone optimistic."</p>
+                </div>
+
+                <p>All the right information is there. But it's tangled together with no hierarchy. Nothing stands out as load-bearing.</p>
+
+                <div class="prompt-example">
+                    <div class="prompt-label">Good Prompt</div>
+                    <p style="margin: 0;">"Could you write a 500-word blog post about artificial intelligence for a general non-technical audience? A few things that are important here: please avoid all technical jargon, use simple everyday comparisons for complex ideas, and keep the tone warm and optimistic rather than alarming. The no-jargon part is especially important for this particular piece."</p>
+                </div>
+
+                <p>The constraints are separated and clear. The most critical one is flagged explicitly. After running versions of this comparison many times across different topics, prompts structured this way consistently outperform the tangled version even when the underlying information is identical.</p>
+
+                <h2 id="conclusion">What All of This Comes Down To</h2>
+
+                <p>After all the reading and testing and going back to fix outputs that didn't land, the thing I keep coming back to is this.</p>
+
+                <p>The quality of what you get from a language model is a reflection of how clearly you communicated what you needed. That's it. The model isn't holding out on you. It's working with exactly what you gave it.</p>
+
+                <p>And the skills that make a prompt clear, knowing your audience, building real context, showing examples, being specific, anchoring your most important constraints, are the same skills that have always made communication work. The tool is new. The craft underneath it isn't.</p>
+
+                <p>I'm still learning and still running into prompts that don't work the way I expected. But having this framework to come back to has made the process feel a lot less like guesswork and a lot more like something you can actually get better at.</p>
+
+            </div>
+
+            <div class="post-footer">
+                <a href="../blog.html">← cd /blogs</a>
+            </div>
+        </article>
+    </main>
+
+    <footer class="footer">
+        <div class="terminal-prompt">
+            <div class="prompt-line">ls /contact</div>
+        </div>
+        <div class="footer-left">
+            <a href="mailto:abhiparasharcode@gmail.com">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
+                    <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
+                </svg>
+                hi[thiswebsite]
+            </a>
+            <a href="https://twitter.com/_abhiparashar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                </svg>
+                _abhiparashar
+            </a>
+            <a href="https://www.linkedin.com/in/abhishek-parashar-3a9218150/">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z" />
+                </svg>
+                abhishek-parashar
+            </a>
+            <a href="https://github.com/abhishek-parashar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+                abhishek-parashar
+            </a>
+            <a href="https://www.strava.com/athletes/143971850">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
+                </svg>
+                strava
+            </a>
+            <a href="https://www.threads.net/@abhishek.parashar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.186 3.094c-2.37 0-4.716.548-6.697 1.567a.75.75 0 1 0 .712 1.32c1.796-.924 3.923-1.387 6.015-1.387 5.417 0 9.284 3.771 9.284 9.063 0 2.444-.652 4.63-1.884 6.322-1.247 1.712-3.064 2.771-5.26 3.063a.75.75 0 1 0 .208 1.486c2.516-.335 4.651-1.568 6.14-3.566 1.476-1.98 2.296-4.515 2.296-7.305 0-6.107-4.442-10.563-10.784-10.563zm-.433 5.719c-2.485 0-4.5 2.015-4.5 4.5s2.015 4.5 4.5 4.5 4.5-2.015 4.5-4.5-2.015-4.5-4.5-4.5zm0 1.5c1.657 0 3 1.343 3 3s-1.343 3-3 3-3-1.343-3-3 1.343-3 3-3z"/>
+                </svg>
+                threads
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        const themeText = document.getElementById('theme-text');
+
+        if (currentTheme === 'light') {
+            document.body.classList.add('light-theme');
+            themeText.textContent = 'dark';
+        } else {
+            themeText.textContent = 'light';
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const isLight = body.classList.contains('light-theme');
+            if (isLight) {
+                body.classList.remove('light-theme');
+                localStorage.setItem('theme', 'dark');
+                themeText.textContent = 'light';
+            } else {
+                body.classList.add('light-theme');
+                localStorage.setItem('theme', 'light');
+                themeText.textContent = 'dark';
+            }
+        }
+
+        // Highlight active TOC link on scroll
+        const headings = document.querySelectorAll('.post-body h2[id]');
+        const tocLinks = document.querySelectorAll('.toc-list a');
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    tocLinks.forEach(a => a.classList.remove('active'));
+                    const active = document.querySelector(`.toc-list a[href="#${entry.target.id}"]`);
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { rootMargin: '0px 0px -70% 0px' });
+
+        headings.forEach(h => observer.observe(h));
+    </script>
+</body>
+</html>
